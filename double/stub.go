@@ -16,9 +16,17 @@ func (s *Stub) On(methodName string, args ...interface{}) *Call {
 	return call
 }
 
-func (s *Stub) Called(args ...interface{}) {
+func (s *Stub) Called(args ...interface{}) Arguments {
 	functionName := s.getCallingFunctionName()
-	s.Calls = append(s.Calls, *NewCall(functionName, args...))
+	call := *NewCall(functionName, args...)
+	s.Calls = append(s.Calls, call)
+
+	foundCall := s.findRegisteredCall(call.MethodName)
+	if foundCall == nil {
+		return nil
+	}
+
+	return foundCall.ReturnArguments
 }
 
 func (s *Stub) getCallingFunctionName() string {
@@ -26,4 +34,13 @@ func (s *Stub) getCallingFunctionName() string {
 	functionPath := runtime.FuncForPC(pc).Name()
 	parts := strings.Split(functionPath, ".")
 	return parts[len(parts)-1]
+}
+
+func (s *Stub) findRegisteredCall(methodName string) *Call {
+	for _, registeredCall := range s.RegisteredCalls {
+		if methodName == registeredCall.MethodName {
+			return registeredCall
+		}
+	}
+	return nil
 }

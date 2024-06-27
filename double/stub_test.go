@@ -1,6 +1,7 @@
 package double_test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
@@ -21,7 +22,8 @@ func (s *TestStub) MethodWithArgs(aInt int, aString string, aFloat float64) {
 }
 
 func (s *TestStub) MethodWithReturnArgs() (int, error) {
-	return 0, nil
+	args := s.Called()
+	return args[0].(int), args[1].(error)
 }
 
 func TestStubOn_RegisterMethodName(t *testing.T) {
@@ -75,6 +77,10 @@ func (sut TestSUT) methodWithArgs(aInt int) {
 	sut.dependency.MethodWithArgs(aInt, strconv.Itoa(aInt), float64(aInt))
 }
 
+func (sut TestSUT) methodWithReturnArgs() (int, error) {
+	return sut.dependency.MethodWithReturnArgs()
+}
+
 func TestStub_CallIsRecorded(t *testing.T) {
 	stub := &TestStub{}
 	sut := &TestSUT{stub}
@@ -93,4 +99,19 @@ func TestStub_CallWithArgumentsIsRecorded(t *testing.T) {
 
 	assert.Len(t, stub.Calls, 1)
 	assert.Equal(t, *NewCall("MethodWithArgs", 123, "123", 123.0), stub.Calls[0])
+}
+
+func TestStub_ReturnSpecifiedReturnArguments(t *testing.T) {
+	stub := &TestStub{}
+	expectedInt := 1
+	expectedErr := fmt.Errorf("stubbed error")
+	stub.On("MethodWithReturnArgs").Return(expectedInt, expectedErr)
+	sut := &TestSUT{stub}
+
+	aInt, err := sut.methodWithReturnArgs()
+
+	assert.Equal(t, expectedInt, aInt)
+	assert.Equal(t, expectedErr, err)
+	assert.Len(t, stub.Calls, 1)
+	assert.Equal(t, *NewCall("MethodWithReturnArgs"), stub.Calls[0])
 }
