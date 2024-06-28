@@ -9,109 +9,109 @@ import (
 	. "github.com/laurentdutheil/go-double/double"
 )
 
-type TestStub struct {
+type StubExample struct {
 	Stub
 }
 
-func (s *TestStub) Method() {
+func (s *StubExample) Method() {
 	s.Called()
 }
 
-func (s *TestStub) MethodWithArgs(aInt int, aString string, aFloat float64) {
+func (s *StubExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
 	s.Called(aInt, aString, aFloat)
 }
 
-func (s *TestStub) MethodWithReturnArgs() (int, error) {
-	args := s.Called()
-	return args[0].(int), args[1].(error)
+func (s *StubExample) MethodWithReturnArguments() (int, error) {
+	arguments := s.Called()
+	return arguments[0].(int), arguments[1].(error)
 }
 
-func TestStubOn_RegisterMethodName(t *testing.T) {
-	stub := &TestStub{}
+func TestStubOn_PredefineMethodName(t *testing.T) {
+	stub := &StubExample{}
 
 	call := stub.On("Method")
 
 	assert.Equal(t, "Method", call.MethodName)
-	assert.Contains(t, stub.RegisteredCalls, call)
+	assert.Contains(t, stub.PredefinedCalls, call)
 }
 
-func TestStubOn_RegisterMethodNameAndArgs(t *testing.T) {
-	stub := &TestStub{}
+func TestStubOn_PredefineMethodNameAndArguments(t *testing.T) {
+	stub := &StubExample{}
 
-	call := stub.On("MethodWithArgs", 1, "2", 3.0)
+	call := stub.On("MethodWithArguments", 1, "2", 3.0)
 
-	assert.Equal(t, "MethodWithArgs", call.MethodName)
-	assert.Contains(t, stub.RegisteredCalls, call)
+	assert.Equal(t, "MethodWithArguments", call.MethodName)
+	assert.Contains(t, stub.PredefinedCalls, call)
 	assert.Len(t, call.Arguments, 3)
 	assert.Contains(t, call.Arguments, 1)
 	assert.Contains(t, call.Arguments, "2")
 	assert.Contains(t, call.Arguments, 3.0)
 }
 
-func TestStubOn_RegisterMethodNameWithReturnArgs(t *testing.T) {
-	stub := &TestStub{}
+func TestStubOn_PredefineMethodNameWithReturnArguments(t *testing.T) {
+	stub := &StubExample{}
 
 	call := stub.On("Method").Return(1, nil)
 
 	assert.Equal(t, "Method", call.MethodName)
-	assert.Contains(t, stub.RegisteredCalls, call)
+	assert.Contains(t, stub.PredefinedCalls, call)
 	assert.Contains(t, call.ReturnArguments, 1)
 	assert.Contains(t, call.ReturnArguments, nil)
 }
 
-type TestInterface interface {
+type InterfaceExample interface {
 	Method()
-	MethodWithArgs(aInt int, aString string, aFloat float64)
-	MethodWithReturnArgs() (int, error)
+	MethodWithArguments(aInt int, aString string, aFloat float64)
+	MethodWithReturnArguments() (int, error)
 }
 
-type TestSUT struct {
-	dependency TestInterface
+type SUTExample struct {
+	dependency InterfaceExample
 }
 
-func (sut TestSUT) method() {
+func (sut SUTExample) method() {
 	sut.dependency.Method()
 }
 
-func (sut TestSUT) methodWithArgs(aInt int) {
-	sut.dependency.MethodWithArgs(aInt, strconv.Itoa(aInt), float64(aInt))
+func (sut SUTExample) methodWithArguments(aInt int) {
+	sut.dependency.MethodWithArguments(aInt, strconv.Itoa(aInt), float64(aInt))
 }
 
-func (sut TestSUT) methodWithReturnArgs() (int, error) {
-	return sut.dependency.MethodWithReturnArgs()
+func (sut SUTExample) methodWithReturnArguments() (int, error) {
+	return sut.dependency.MethodWithReturnArguments()
 }
 
-func TestStub_CallIsRecorded(t *testing.T) {
-	stub := &TestStub{}
-	sut := &TestSUT{stub}
+func TestStub_CallIsPredefined(t *testing.T) {
+	stub := &StubExample{}
+	sut := &SUTExample{stub}
 
 	sut.method()
 
-	assert.Len(t, stub.Calls, 1)
-	assert.Equal(t, *NewCall("Method"), stub.Calls[0])
+	assert.Len(t, stub.ActualCalls, 1)
+	assert.Equal(t, *NewCall("Method"), stub.ActualCalls[0])
 }
 
-func TestStub_CallWithArgumentsIsRecorded(t *testing.T) {
-	stub := &TestStub{}
-	sut := &TestSUT{stub}
+func TestStub_CallWithArgumentsIsPredefined(t *testing.T) {
+	stub := &StubExample{}
+	sut := &SUTExample{stub}
 
-	sut.methodWithArgs(123)
+	sut.methodWithArguments(123)
 
-	assert.Len(t, stub.Calls, 1)
-	assert.Equal(t, *NewCall("MethodWithArgs", 123, "123", 123.0), stub.Calls[0])
+	assert.Len(t, stub.ActualCalls, 1)
+	assert.Equal(t, *NewCall("MethodWithArguments", 123, "123", 123.0), stub.ActualCalls[0])
 }
 
-func TestStub_ReturnSpecifiedReturnArguments(t *testing.T) {
-	stub := &TestStub{}
+func TestStub_ReturnPredefinedReturnArguments(t *testing.T) {
+	stub := &StubExample{}
 	expectedInt := 1
 	expectedErr := fmt.Errorf("stubbed error")
-	stub.On("MethodWithReturnArgs").Return(expectedInt, expectedErr)
-	sut := &TestSUT{stub}
+	stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr)
+	sut := &SUTExample{stub}
 
-	aInt, err := sut.methodWithReturnArgs()
+	aInt, err := sut.methodWithReturnArguments()
 
 	assert.Equal(t, expectedInt, aInt)
 	assert.Equal(t, expectedErr, err)
-	assert.Len(t, stub.Calls, 1)
-	assert.Equal(t, *NewCall("MethodWithReturnArgs"), stub.Calls[0])
+	assert.Len(t, stub.ActualCalls, 1)
+	assert.Equal(t, *NewCall("MethodWithReturnArguments"), stub.ActualCalls[0])
 }

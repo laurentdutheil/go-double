@@ -6,22 +6,22 @@ import (
 )
 
 type Stub struct {
-	RegisteredCalls []*Call
-	Calls           []Call
+	PredefinedCalls []*Call
+	ActualCalls     []Call
 }
 
-func (s *Stub) On(methodName string, args ...interface{}) *Call {
-	call := NewCall(methodName, args...)
-	s.RegisteredCalls = append(s.RegisteredCalls, call)
+func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
+	call := NewCall(methodName, arguments...)
+	s.PredefinedCalls = append(s.PredefinedCalls, call)
 	return call
 }
 
-func (s *Stub) Called(args ...interface{}) Arguments {
+func (s *Stub) Called(arguments ...interface{}) Arguments {
 	functionName := s.getCallingFunctionName()
-	call := *NewCall(functionName, args...)
-	s.Calls = append(s.Calls, call)
+	call := *NewCall(functionName, arguments...)
+	s.ActualCalls = append(s.ActualCalls, call)
 
-	foundCall := s.findRegisteredCall(call.MethodName)
+	foundCall := s.findPredefinedCall(call.MethodName)
 	if foundCall == nil {
 		return nil
 	}
@@ -36,8 +36,8 @@ func (s *Stub) getCallingFunctionName() string {
 	return parts[len(parts)-1]
 }
 
-func (s *Stub) findRegisteredCall(methodName string) *Call {
-	for _, registeredCall := range s.RegisteredCalls {
+func (s *Stub) findPredefinedCall(methodName string) *Call {
+	for _, registeredCall := range s.PredefinedCalls {
 		if methodName == registeredCall.MethodName {
 			return registeredCall
 		}

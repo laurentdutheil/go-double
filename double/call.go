@@ -8,11 +8,11 @@ type Call struct {
 	ReturnArguments Arguments
 }
 
-func NewCall(methodName string, args ...interface{}) *Call {
-	return &Call{MethodName: methodName, Arguments: args}
+func NewCall(methodName string, arguments ...interface{}) *Call {
+	return &Call{MethodName: methodName, Arguments: arguments}
 }
 
-func (c *Call) Return(args ...interface{}) *Call {
-	c.ReturnArguments = append(c.ReturnArguments, args...)
+func (c *Call) Return(arguments ...interface{}) *Call {
+	c.ReturnArguments = append(c.ReturnArguments, arguments...)
 	return c
 }
