@@ -3,28 +3,10 @@ package double_test
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"strconv"
 	"testing"
 
 	. "github.com/laurentdutheil/go-double/double"
 )
-
-type StubExample struct {
-	Stub
-}
-
-func (s *StubExample) Method() {
-	s.Called()
-}
-
-func (s *StubExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
-	s.Called(aInt, aString, aFloat)
-}
-
-func (s *StubExample) MethodWithReturnArguments() (int, error) {
-	arguments := s.Called()
-	return arguments[0].(int), arguments[1].(error)
-}
 
 func TestStubOn_PredefineMethodName(t *testing.T) {
 	stub := &StubExample{}
@@ -57,28 +39,6 @@ func TestStubOn_PredefineMethodNameWithReturnArguments(t *testing.T) {
 	assert.Contains(t, stub.PredefinedCalls, call)
 	assert.Contains(t, call.ReturnArguments, 1)
 	assert.Contains(t, call.ReturnArguments, nil)
-}
-
-type InterfaceExample interface {
-	Method()
-	MethodWithArguments(aInt int, aString string, aFloat float64)
-	MethodWithReturnArguments() (int, error)
-}
-
-type SUTExample struct {
-	dependency InterfaceExample
-}
-
-func (sut SUTExample) method() {
-	sut.dependency.Method()
-}
-
-func (sut SUTExample) methodWithArguments(aInt int) {
-	sut.dependency.MethodWithArguments(aInt, strconv.Itoa(aInt), float64(aInt))
-}
-
-func (sut SUTExample) methodWithReturnArguments() (int, error) {
-	return sut.dependency.MethodWithReturnArguments()
 }
 
 func TestStub_CallIsPredefined(t *testing.T) {
