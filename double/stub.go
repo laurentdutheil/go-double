@@ -1,5 +1,7 @@
 package double
 
+import "fmt"
+
 type Stub struct {
 	PredefinedCalls []*Call
 	ActualCalls     []Call
@@ -16,17 +18,24 @@ func (s *Stub) Called(arguments ...interface{}) Arguments {
 	call := *NewCall(functionName, arguments...)
 	s.ActualCalls = append(s.ActualCalls, call)
 
-	foundCall := s.findPredefinedCall(call.MethodName)
+	foundCall := s.findPredefinedCall(call.MethodName, arguments...)
 	if foundCall == nil {
-		return nil
+		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", call.MethodName)
+		panic(errorMessage)
 	}
 
 	return foundCall.ReturnArguments
 }
 
-func (s *Stub) findPredefinedCall(methodName string) *Call {
+func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *Call {
+
 	for _, registeredCall := range s.PredefinedCalls {
 		if methodName == registeredCall.MethodName {
+			for i, argument := range arguments {
+				if registeredCall.Arguments[i] != argument {
+					return nil
+				}
+			}
 			return registeredCall
 		}
 	}

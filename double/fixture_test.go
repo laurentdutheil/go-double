@@ -9,6 +9,7 @@ type InterfaceExample interface {
 	Method()
 	MethodWithArguments(aInt int, aString string, aFloat float64)
 	MethodWithReturnArguments() (int, error)
+	MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error)
 }
 
 type StubExample struct {
@@ -28,6 +29,11 @@ func (s *StubExample) MethodWithReturnArguments() (int, error) {
 	return arguments[0].(int), arguments[1].(error)
 }
 
+func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
+	arguments := s.Called(aInt, aString, aFloat)
+	return arguments[0].(int), arguments[1].(error)
+}
+
 type SUTExample struct {
 	dependency InterfaceExample
 }
@@ -42,4 +48,8 @@ func (sut SUTExample) methodWithArguments(aInt int) {
 
 func (sut SUTExample) methodWithReturnArguments() (int, error) {
 	return sut.dependency.MethodWithReturnArguments()
+}
+
+func (sut SUTExample) methodWithArgumentsAndReturnArguments(aInt int) (int, error) {
+	return sut.dependency.MethodWithArgumentsAndReturnArguments(aInt, strconv.Itoa(aInt), float64(aInt))
 }
