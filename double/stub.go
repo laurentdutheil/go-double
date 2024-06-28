@@ -1,10 +1,5 @@
 package double
 
-import (
-	"runtime"
-	"strings"
-)
-
 type Stub struct {
 	PredefinedCalls []*Call
 	ActualCalls     []Call
@@ -17,7 +12,7 @@ func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 }
 
 func (s *Stub) Called(arguments ...interface{}) Arguments {
-	functionName := s.getCallingFunctionName()
+	functionName := getCallingFunctionName()
 	call := *NewCall(functionName, arguments...)
 	s.ActualCalls = append(s.ActualCalls, call)
 
@@ -27,13 +22,6 @@ func (s *Stub) Called(arguments ...interface{}) Arguments {
 	}
 
 	return foundCall.ReturnArguments
-}
-
-func (s *Stub) getCallingFunctionName() string {
-	pc, _, _, _ := runtime.Caller(2)
-	functionPath := runtime.FuncForPC(pc).Name()
-	parts := strings.Split(functionPath, ".")
-	return parts[len(parts)-1]
 }
 
 func (s *Stub) findPredefinedCall(methodName string) *Call {
