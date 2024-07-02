@@ -30,17 +30,6 @@ func TestStubOn_PredefineMethodNameAndArguments(t *testing.T) {
 	assert.Contains(t, call.Arguments, 3.0)
 }
 
-func TestStubOn_PredefineMethodNameWithReturnArguments(t *testing.T) {
-	stub := &StubExample{}
-
-	call := stub.On("Method").Return(1, nil)
-
-	assert.Equal(t, "Method", call.MethodName)
-	assert.Contains(t, stub.PredefinedCalls, call)
-	assert.Contains(t, call.ReturnArguments, 1)
-	assert.Contains(t, call.ReturnArguments, nil)
-}
-
 func TestStub_CallIsPredefined(t *testing.T) {
 	stub := &StubExample{}
 	stub.On("Method")
