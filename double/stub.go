@@ -1,6 +1,9 @@
 package double
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Stub struct {
 	PredefinedCalls []*Call
@@ -12,15 +15,22 @@ func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 	return call
 }
 
-func (s *Stub) Called(arguments ...interface{}) Arguments {
+func (s *Stub) Called(caller interface{}, arguments ...interface{}) Arguments {
 	functionName := getCallingFunctionName()
-	return s.MethodCalled(functionName, arguments...)
+	typeOfCaller := reflect.TypeOf(caller)
+	method, _ := typeOfCaller.MethodByName(functionName)
+	return s.MethodCalled(method, arguments...)
 }
 
-func (s *Stub) MethodCalled(methodName string, arguments ...interface{}) Arguments {
-	foundCall := s.findPredefinedCall(methodName, arguments...)
+func (s *Stub) MethodCalled(method reflect.Method, arguments ...interface{}) Arguments {
+	numberOfReturnArguments := method.Type.NumOut()
+	if numberOfReturnArguments == 0 {
+		return nil
+	}
+
+	foundCall := s.findPredefinedCall(method.Name, arguments...)
 	if foundCall == nil {
-		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", methodName)
+		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
 		panic(errorMessage)
 	}
 
@@ -40,4 +50,10 @@ func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *
 		}
 	}
 	return nil
+}
+
+type Double interface {
+	On(methodName string, arguments ...interface{}) *Call
+	Called(caller interface{}, arguments ...interface{}) Arguments
+	MethodCalled(method reflect.Method, arguments ...interface{}) Arguments
 }
