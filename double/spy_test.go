@@ -9,7 +9,6 @@ import (
 
 func TestSpy_Called_RegisterActualCall(t *testing.T) {
 	spy := &SpyExample{}
-	spy.On("Method")
 	sut := &SUTExample{spy}
 
 	sut.method()
@@ -20,7 +19,6 @@ func TestSpy_Called_RegisterActualCall(t *testing.T) {
 
 func TestSpy_Called_RegisterActualCallWithArguments(t *testing.T) {
 	spy := &SpyExample{}
-	spy.On("MethodWithArguments", 123, "123", 123.0)
 	sut := &SUTExample{spy}
 
 	sut.methodWithArguments(123)

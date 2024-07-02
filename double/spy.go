@@ -1,18 +1,22 @@
 package double
 
+import "reflect"
+
 type Spy struct {
 	Stub
 	ActualCalls []Call
 }
 
-func (s *Spy) Called(arguments ...interface{}) Arguments {
+func (s *Spy) Called(caller interface{}, arguments ...interface{}) Arguments {
 	functionName := getCallingFunctionName()
-	return s.MethodCalled(functionName, arguments...)
+	typeOfCaller := reflect.TypeOf(caller)
+	method, _ := typeOfCaller.MethodByName(functionName)
+	return s.MethodCalled(method, arguments...)
 }
 
-func (s *Spy) MethodCalled(methodName string, arguments ...interface{}) Arguments {
-	call := *NewCall(methodName, arguments...)
+func (s *Spy) MethodCalled(method reflect.Method, arguments ...interface{}) Arguments {
+	call := *NewCall(method.Name, arguments...)
 	s.ActualCalls = append(s.ActualCalls, call)
 
-	return s.Stub.MethodCalled(methodName, arguments...)
+	return s.Stub.MethodCalled(method, arguments...)
 }

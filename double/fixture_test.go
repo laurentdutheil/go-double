@@ -17,20 +17,20 @@ type StubExample struct {
 }
 
 func (s *StubExample) Method() {
-	s.Called()
+	s.Called(s)
 }
 
 func (s *StubExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
-	s.Called(aInt, aString, aFloat)
+	s.Called(s, aInt, aString, aFloat)
 }
 
 func (s *StubExample) MethodWithReturnArguments() (int, error) {
-	arguments := s.Called()
+	arguments := s.Called(s)
 	return arguments[0].(int), arguments[1].(error)
 }
 
 func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
-	arguments := s.Called(aInt, aString, aFloat)
+	arguments := s.Called(s, aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
 }
 
@@ -39,20 +39,20 @@ type SpyExample struct {
 }
 
 func (s *SpyExample) Method() {
-	s.Called()
+	s.Called(s)
 }
 
 func (s *SpyExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
-	s.Called(aInt, aString, aFloat)
+	s.Called(s, aInt, aString, aFloat)
 }
 
 func (s *SpyExample) MethodWithReturnArguments() (int, error) {
-	arguments := s.Called()
+	arguments := s.Called(s)
 	return arguments[0].(int), arguments[1].(error)
 }
 
 func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
-	arguments := s.Called(aInt, aString, aFloat)
+	arguments := s.Called(s, aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
 }
 

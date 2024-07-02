@@ -64,3 +64,10 @@ func TestStub_PanicsWithArgumentsChecking(t *testing.T) {
 	expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithArgumentsAndReturnArguments\").Return(...) first"
 	assert.PanicsWithValue(t, expectedError, func() { _, _ = sut.methodWithArgumentsAndReturnArguments(12) })
 }
+
+func TestStub_Called_ShouldNotPanicOnMethodWithoutReturnArgument(t *testing.T) {
+	stub := &StubExample{}
+	sut := &SUTExample{stub}
+
+	assert.NotPanics(t, func() { sut.method() })
+}
