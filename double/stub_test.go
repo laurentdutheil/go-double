@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
-
-	. "github.com/laurentdutheil/go-double/double"
 )
 
 func TestStubOn_PredefineMethodName(t *testing.T) {
@@ -30,28 +28,6 @@ func TestStubOn_PredefineMethodNameAndArguments(t *testing.T) {
 	assert.Contains(t, call.Arguments, 3.0)
 }
 
-func TestStub_CallIsPredefined(t *testing.T) {
-	stub := &StubExample{}
-	stub.On("Method")
-	sut := &SUTExample{stub}
-
-	sut.method()
-
-	assert.Len(t, stub.ActualCalls, 1)
-	assert.Equal(t, *NewCall("Method"), stub.ActualCalls[0])
-}
-
-func TestStub_CallWithArgumentsIsPredefined(t *testing.T) {
-	stub := &StubExample{}
-	stub.On("MethodWithArguments", 123, "123", 123.0)
-	sut := &SUTExample{stub}
-
-	sut.methodWithArguments(123)
-
-	assert.Len(t, stub.ActualCalls, 1)
-	assert.Equal(t, *NewCall("MethodWithArguments", 123, "123", 123.0), stub.ActualCalls[0])
-}
-
 func TestStub_ReturnPredefinedReturnArguments(t *testing.T) {
 	stub := &StubExample{}
 	expectedInt := 1
@@ -63,8 +39,6 @@ func TestStub_ReturnPredefinedReturnArguments(t *testing.T) {
 
 	assert.Equal(t, expectedInt, aInt)
 	assert.Equal(t, expectedErr, err)
-	assert.Len(t, stub.ActualCalls, 1)
-	assert.Equal(t, *NewCall("MethodWithReturnArguments"), stub.ActualCalls[0])
 }
 
 func TestStub_ReturnPredefinedReturnArgumentsWithArgumentsChecking(t *testing.T) {
@@ -78,8 +52,6 @@ func TestStub_ReturnPredefinedReturnArgumentsWithArgumentsChecking(t *testing.T)
 
 	assert.Equal(t, expectedInt, aInt)
 	assert.Equal(t, expectedErr, err)
-	assert.Len(t, stub.ActualCalls, 1)
-	assert.Equal(t, *NewCall("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0), stub.ActualCalls[0])
 }
 
 func TestStub_PanicsWithArgumentsChecking(t *testing.T) {

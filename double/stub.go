@@ -4,7 +4,6 @@ import "fmt"
 
 type Stub struct {
 	PredefinedCalls []*Call
-	ActualCalls     []Call
 }
 
 func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
@@ -15,12 +14,13 @@ func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 
 func (s *Stub) Called(arguments ...interface{}) Arguments {
 	functionName := getCallingFunctionName()
-	call := *NewCall(functionName, arguments...)
-	s.ActualCalls = append(s.ActualCalls, call)
+	return s.MethodCalled(functionName, arguments...)
+}
 
-	foundCall := s.findPredefinedCall(call.MethodName, arguments...)
+func (s *Stub) MethodCalled(methodName string, arguments ...interface{}) Arguments {
+	foundCall := s.findPredefinedCall(methodName, arguments...)
 	if foundCall == nil {
-		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", call.MethodName)
+		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", methodName)
 		panic(errorMessage)
 	}
 

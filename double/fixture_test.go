@@ -34,6 +34,28 @@ func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString st
 	return arguments[0].(int), arguments[1].(error)
 }
 
+type SpyExample struct {
+	double.Spy
+}
+
+func (s *SpyExample) Method() {
+	s.Called()
+}
+
+func (s *SpyExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
+	s.Called(aInt, aString, aFloat)
+}
+
+func (s *SpyExample) MethodWithReturnArguments() (int, error) {
+	arguments := s.Called()
+	return arguments[0].(int), arguments[1].(error)
+}
+
+func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
+	arguments := s.Called(aInt, aString, aFloat)
+	return arguments[0].(int), arguments[1].(error)
+}
+
 type SUTExample struct {
 	dependency InterfaceExample
 }
