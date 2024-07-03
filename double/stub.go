@@ -49,9 +49,3 @@ func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *
 	}
 	return nil
 }
-
-type Double interface {
-	On(methodName string, arguments ...interface{}) *Call
-	Called(caller interface{}, arguments ...interface{}) Arguments
-	MethodCalled(method reflect.Method, arguments ...interface{}) Arguments
-}
