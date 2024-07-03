@@ -16,9 +16,7 @@ func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 }
 
 func (s *Stub) Called(caller interface{}, arguments ...interface{}) Arguments {
-	functionName := getCallingFunctionName()
-	typeOfCaller := reflect.TypeOf(caller)
-	method, _ := typeOfCaller.MethodByName(functionName)
+	method := GetCallingMethod(caller)
 	return s.MethodCalled(method, arguments...)
 }
 

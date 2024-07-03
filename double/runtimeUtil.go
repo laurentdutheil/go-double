@@ -1,26 +1,29 @@
 package double
 
 import (
+	"reflect"
 	"regexp"
 	"runtime"
 	"strings"
 )
 
-// function variables to allow Monkey Patching in tests
-var runtimeCallerFunc = runtime.Caller
-var runtimeFuncForPCNameFunc = func(pc uintptr) string {
+// RuntimeCallerFunc function variable to allow Monkey Patching in tests
+var RuntimeCallerFunc = runtime.Caller
+
+// RuntimeFuncForPCNameFunc function variable to allow Monkey Patching in tests
+var RuntimeFuncForPCNameFunc = func(pc uintptr) string {
 	return runtime.FuncForPC(pc).Name()
 }
 
 // regex for GCCGO functions
 var gccgoRE = regexp.MustCompile(`\.pN\d+_`)
 
-func getCallingFunctionName() string {
-	pc, _, _, ok := runtimeCallerFunc(2)
+func GetCallingFunctionName(skipFrames int) string {
+	pc, _, _, ok := RuntimeCallerFunc(skipFrames)
 	if !ok {
 		panic("Couldn't get the caller information")
 	}
-	functionPath := runtimeFuncForPCNameFunc(pc)
+	functionPath := RuntimeFuncForPCNameFunc(pc)
 
 	// Next four lines are required to use GCCGO function naming conventions.
 	// For Ex:  github_com_docker_libkv_store_mock.WatchTree.pN39_github_com_docker_libkv_store_mock.Mock
@@ -32,4 +35,11 @@ func getCallingFunctionName() string {
 
 	parts := strings.Split(functionPath, ".")
 	return parts[len(parts)-1]
+}
+
+func GetCallingMethod(caller interface{}) reflect.Method {
+	functionName := GetCallingFunctionName(3)
+	typeOfCaller := reflect.TypeOf(caller)
+	method, _ := typeOfCaller.MethodByName(functionName)
+	return method
 }

@@ -8,9 +8,7 @@ type Spy struct {
 }
 
 func (s *Spy) Called(caller interface{}, arguments ...interface{}) Arguments {
-	functionName := getCallingFunctionName()
-	typeOfCaller := reflect.TypeOf(caller)
-	method, _ := typeOfCaller.MethodByName(functionName)
+	method := GetCallingMethod(caller)
 	return s.MethodCalled(method, arguments...)
 }
 
