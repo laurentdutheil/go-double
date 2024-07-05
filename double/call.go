@@ -16,3 +16,8 @@ func (c *Call) Return(arguments ...interface{}) *Call {
 	c.ReturnArguments = append(c.ReturnArguments, arguments...)
 	return c
 }
+
+type Method struct {
+	Name   string
+	NumOut int
+}

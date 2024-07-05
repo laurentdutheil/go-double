@@ -1,7 +1,5 @@
 package double
 
-import "reflect"
-
 type Spy struct {
 	Stub
 	ActualCalls []Call
@@ -12,7 +10,7 @@ func (s *Spy) Called(caller interface{}, arguments ...interface{}) Arguments {
 	return s.MethodCalled(method, arguments...)
 }
 
-func (s *Spy) MethodCalled(method reflect.Method, arguments ...interface{}) Arguments {
+func (s *Spy) MethodCalled(method Method, arguments ...interface{}) Arguments {
 	call := *NewCall(method.Name, arguments...)
 	s.ActualCalls = append(s.ActualCalls, call)
 

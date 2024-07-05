@@ -2,7 +2,6 @@ package double
 
 import (
 	"fmt"
-	"reflect"
 )
 
 type Stub struct {
@@ -20,8 +19,8 @@ func (s *Stub) Called(caller interface{}, arguments ...interface{}) Arguments {
 	return s.MethodCalled(method, arguments...)
 }
 
-func (s *Stub) MethodCalled(method reflect.Method, arguments ...interface{}) Arguments {
-	numberOfReturnArguments := method.Type.NumOut()
+func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
+	numberOfReturnArguments := method.NumOut
 	if numberOfReturnArguments == 0 {
 		return nil
 	}

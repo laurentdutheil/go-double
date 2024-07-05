@@ -51,7 +51,7 @@ func TestGetCallingFunctionName_extractFunctionNameWithGCCGO(t *testing.T) {
 	assert.Equal(t, "MethodWithReturnArguments", GetCallingFunctionName(2))
 }
 
-func TestGetCallingMethod_(t *testing.T) {
+func TestGetCallingMethod_GetMethodNameAndNumberOfReturnArguments(t *testing.T) {
 	beforeMonkeyPatch := RuntimeFuncForPCNameFunc
 	defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
 	RuntimeFuncForPCNameFunc = func(pc uintptr) string {
@@ -63,5 +63,5 @@ func TestGetCallingMethod_(t *testing.T) {
 	method := GetCallingMethod(stubExample)
 
 	assert.Equal(t, "Method", method.Name)
-	assert.Equal(t, 0, method.Type.NumOut())
+	assert.Equal(t, 0, method.NumOut)
 }

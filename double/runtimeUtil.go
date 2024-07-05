@@ -37,9 +37,9 @@ func GetCallingFunctionName(skipFrames int) string {
 	return parts[len(parts)-1]
 }
 
-func GetCallingMethod(caller interface{}) reflect.Method {
+func GetCallingMethod(caller interface{}) Method {
 	functionName := GetCallingFunctionName(3)
 	typeOfCaller := reflect.TypeOf(caller)
 	method, _ := typeOfCaller.MethodByName(functionName)
-	return method
+	return Method{functionName, method.Type.NumOut()}
 }
