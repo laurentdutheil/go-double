@@ -41,3 +41,27 @@ func TestSpy_NumberOfCall_SeveralCalls(t *testing.T) {
 
 	assert.Equal(t, 2, spy.NumberOfCall("Method"))
 }
+
+func TestSpy_NumberOfCallWithArguments_ZeroCall(t *testing.T) {
+	spy := &SpyExample{}
+
+	assert.Equal(t, 0, spy.NumberOfCallWithArguments("MethodWithArguments", 1, "2", 3.0))
+}
+
+func TestSpy_NumberOfCallWithArguments_OneCallWithWrongArguments(t *testing.T) {
+	spy := &SpyExample{}
+
+	spy.MethodWithArguments(0, "2", 3.0)
+
+	assert.Equal(t, 0, spy.NumberOfCallWithArguments("MethodWithArguments", 1, "2", 3.0))
+}
+
+func TestSpy_NumberOfCallWithArguments_SeveralCalls(t *testing.T) {
+	spy := &SpyExample{}
+
+	spy.MethodWithArguments(1, "2", 3.0)
+	spy.MethodWithArguments(1, "2", 3.0)
+	spy.MethodWithArguments(1, "2", 3.0)
+
+	assert.Equal(t, 3, spy.NumberOfCallWithArguments("MethodWithArguments", 1, "2", 3.0))
+}

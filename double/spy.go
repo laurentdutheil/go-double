@@ -26,3 +26,13 @@ func (s *Spy) NumberOfCall(methodName string) int {
 	}
 	return count
 }
+
+func (s *Spy) NumberOfCallWithArguments(methodName string, arguments ...interface{}) int {
+	count := 0
+	for _, call := range s.ActualCalls {
+		if call.MethodName == methodName && call.Arguments.Equal(arguments...) {
+			count++
+		}
+	}
+	return count
+}

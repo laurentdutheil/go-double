@@ -2,7 +2,7 @@ package double
 
 type Arguments []interface{}
 
-func (a Arguments) Diff(arguments ...interface{}) bool {
+func (a Arguments) Equal(arguments ...interface{}) bool {
 	for i, argument := range arguments {
 		if a[i] != argument {
 			return false

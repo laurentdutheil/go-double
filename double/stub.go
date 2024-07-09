@@ -38,7 +38,7 @@ func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *
 
 	for _, predefinedCall := range s.PredefinedCalls {
 		if methodName == predefinedCall.MethodName {
-			if !predefinedCall.Arguments.Diff(arguments...) {
+			if !predefinedCall.Arguments.Equal(arguments...) {
 				return nil
 			}
 			return predefinedCall
