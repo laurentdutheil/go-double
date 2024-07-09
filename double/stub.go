@@ -36,14 +36,12 @@ func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
 
 func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *Call {
 
-	for _, registeredCall := range s.PredefinedCalls {
-		if methodName == registeredCall.MethodName {
-			for i, argument := range arguments {
-				if registeredCall.Arguments[i] != argument {
-					return nil
-				}
+	for _, predefinedCall := range s.PredefinedCalls {
+		if methodName == predefinedCall.MethodName {
+			if !predefinedCall.Arguments.Diff(arguments...) {
+				return nil
 			}
-			return registeredCall
+			return predefinedCall
 		}
 	}
 	return nil
