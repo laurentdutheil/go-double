@@ -32,6 +32,14 @@ func (c *Call) Once() {
 	c.times = 1
 }
 
+func (c *Call) Twice() {
+	c.times = 2
+}
+
+func (c *Call) Times(i int) {
+	c.times = i
+}
+
 func (c *Call) alreadyCalledPredefinedTimes() bool {
 	return c.times > 0 && c.times == c.callCounter
 }
