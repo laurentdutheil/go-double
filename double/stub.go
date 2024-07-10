@@ -35,12 +35,13 @@ func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
 }
 
 func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *Call {
-
 	for _, predefinedCall := range s.PredefinedCalls {
 		if methodName == predefinedCall.MethodName {
-			if !predefinedCall.Arguments.Equal(arguments...) {
-				return nil
+			if !predefinedCall.Arguments.Equal(arguments...) ||
+				predefinedCall.alreadyCalledPredefinedTimes() {
+				continue
 			}
+			predefinedCall.updateNumberOfPredefinedCall()
 			return predefinedCall
 		}
 	}

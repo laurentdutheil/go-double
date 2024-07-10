@@ -71,3 +71,37 @@ func TestStub_Called_ShouldNotPanicOnMethodWithoutReturnArgument(t *testing.T) {
 
 	assert.NotPanics(t, func() { sut.method() })
 }
+
+func TestStub_ReturnPredefinedReturnArgumentsOnce(t *testing.T) {
+	stub := &StubExample{}
+	expectedInt := 1
+	expectedErr := fmt.Errorf("stubbed error")
+	stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr).Once()
+	sut := &SUTExample{stub}
+
+	aInt, err := sut.methodWithReturnArguments()
+	assert.Equal(t, expectedInt, aInt)
+	assert.Equal(t, expectedErr, err)
+
+	expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
+	assert.PanicsWithValue(t, expectedError, func() { _, _ = sut.methodWithReturnArguments() })
+}
+
+func TestStub_ReturnPredefinedReturnDifferentArgumentsOnDifferentCall(t *testing.T) {
+	stub := &StubExample{}
+	expectedErr := fmt.Errorf("stubbed error")
+	stub.On("MethodWithReturnArguments").Return(1, expectedErr).Once()
+	stub.On("MethodWithReturnArguments").Return(2, expectedErr).Once()
+	sut := &SUTExample{stub}
+
+	aInt1, err1 := sut.methodWithReturnArguments()
+	assert.Equal(t, 1, aInt1)
+	assert.Equal(t, expectedErr, err1)
+
+	aInt2, err2 := sut.methodWithReturnArguments()
+	assert.Equal(t, 2, aInt2)
+	assert.Equal(t, expectedErr, err2)
+
+	expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
+	assert.PanicsWithValue(t, expectedError, func() { _, _ = sut.methodWithReturnArguments() })
+}
