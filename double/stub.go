@@ -20,13 +20,9 @@ func (s *Stub) Called(caller interface{}, arguments ...interface{}) Arguments {
 }
 
 func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
-	numberOfReturnArguments := method.NumOut
-	if numberOfReturnArguments == 0 {
-		return nil
-	}
-
 	foundCall := s.findPredefinedCall(method.Name, arguments...)
-	if foundCall == nil {
+
+	if foundCall == noCallFound && method.NumOut > 0 {
 		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
 		panic(errorMessage)
 	}
@@ -45,5 +41,7 @@ func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *
 			return predefinedCall
 		}
 	}
-	return nil
+	return noCallFound
 }
+
+var noCallFound = NewCall("-CallNotFound-")
