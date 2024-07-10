@@ -31,6 +31,7 @@ func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
 		panic(errorMessage)
 	}
 
+	foundCall.incrementNumberOfCall()
 	return foundCall.ReturnArguments
 }
 
@@ -41,7 +42,6 @@ func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *
 				predefinedCall.alreadyCalledPredefinedTimes() {
 				continue
 			}
-			predefinedCall.updateNumberOfPredefinedCall()
 			return predefinedCall
 		}
 	}

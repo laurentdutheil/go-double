@@ -44,7 +44,7 @@ func (c *Call) alreadyCalledPredefinedTimes() bool {
 	return c.times > 0 && c.times == c.callCounter
 }
 
-func (c *Call) updateNumberOfPredefinedCall() {
+func (c *Call) incrementNumberOfCall() {
 	if c.times > 0 {
 		c.callCounter++
 	}
