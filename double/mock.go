@@ -20,6 +20,14 @@ type TestingT interface {
 // Check if TestingT interface can wrap testing.T
 var _ TestingT = (*testing.T)(nil)
 
+func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
+	t.Helper()
+
+	actualCalls := m.Spy.NumberOfCall(methodName)
+
+	return assert.Equal(t, expectedCalls, actualCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, actualCalls))
+}
+
 func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 

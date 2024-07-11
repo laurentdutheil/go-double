@@ -7,6 +7,51 @@ import (
 	. "github.com/laurentdutheil/go-double/double"
 )
 
+func TestMock_AssertNumberOfCalls(t *testing.T) {
+
+	t.Run("t.Helper is called", func(t *testing.T) {
+		mock := MockExample{}
+		st := &SpiedTestingT{}
+
+		mock.AssertNumberOfCalls(st, "Method", 1)
+
+		assert.True(t, st.helperCalled)
+	})
+
+	t.Run("Return false when number of calls is incorrect", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+
+		result := mock.AssertNumberOfCalls(tt, "Method", 1)
+
+		assert.False(t, result)
+	})
+
+	t.Run("Return true when number of calls is correct", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+		mock.Method()
+
+		result := mock.AssertNumberOfCalls(tt, "Method", 1)
+
+		assert.True(t, result)
+	})
+
+	t.Run("t.Errorf is called with right message when number of calls is incorrect", func(t *testing.T) {
+		mock := MockExample{}
+		st := &SpiedTestingT{}
+		mock.Method()
+
+		mock.AssertNumberOfCalls(st, "Method", 2)
+
+		assert.Equal(t, "\n%s", st.errorfFormat)
+		errorMessage := st.errorfArgs[0]
+		assert.Contains(t, errorMessage, "Error Trace:")
+		assert.Contains(t, errorMessage, "Expected number of calls (2) does not match the actual number of calls (1).")
+	})
+
+}
+
 func TestMock_AssertCall(t *testing.T) {
 
 	t.Run("t.Helper is called", func(t *testing.T) {
