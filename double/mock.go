@@ -3,6 +3,7 @@ package double
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -19,13 +20,24 @@ type TestingT interface {
 // Check if TestingT interface can wrap testing.T
 var _ TestingT = (*testing.T)(nil)
 
-func (m *Mock) AssertCalled(t TestingT, methodName string) bool {
+func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
-	result := m.Spy.NumberOfCall(methodName) > 0
+	result := m.Spy.NumberOfCallWithArguments(methodName, arguments...) > 0
 	if !result {
-		assert.Fail(t, "Should have called",
-			fmt.Sprintf("Expected %q to have been called\nbut no actual calls happened", methodName))
+		var calledWithArgs []string
+		for _, call := range m.ActualCalls {
+			if call.MethodName == methodName {
+				calledWithArgs = append(calledWithArgs, fmt.Sprintf("%v", call.Arguments))
+			}
+		}
+
+		if len(calledWithArgs) == 0 {
+			return assert.Fail(t, "Should have called with given arguments",
+				fmt.Sprintf("Expected %q to have been called with:\n%v\nbut no actual calls happened", methodName, arguments))
+		}
+
+		return assert.Fail(t, "Should have called with given arguments", fmt.Sprintf("Expected %q to have been called with:\n%v\nbut actual calls were:\n        %v", methodName, arguments, strings.Join(calledWithArgs, "\n")))
 	}
 
 	return result

@@ -56,6 +56,10 @@ func (s *MockExample) Method() {
 	s.Called(s)
 }
 
+func (s *MockExample) MethodWithOneArgument(aInt int) {
+	s.Called(s, aInt)
+}
+
 func (s *MockExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
 	s.Called(s, aInt, aString, aFloat)
 }
