@@ -47,3 +47,25 @@ func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString str
 	arguments := s.Called(s, aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
 }
+
+type MockExample struct {
+	double.Mock
+}
+
+func (s *MockExample) Method() {
+	s.Called(s)
+}
+
+func (s *MockExample) MethodWithArguments(aInt int, aString string, aFloat float64) {
+	s.Called(s, aInt, aString, aFloat)
+}
+
+func (s *MockExample) MethodWithReturnArguments() (int, error) {
+	arguments := s.Called(s)
+	return arguments[0].(int), arguments[1].(error)
+}
+
+func (s *MockExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
+	arguments := s.Called(s, aInt, aString, aFloat)
+	return arguments[0].(int), arguments[1].(error)
+}
