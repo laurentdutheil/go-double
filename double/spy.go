@@ -17,7 +17,7 @@ func (s *Spy) MethodCalled(method Method, arguments ...interface{}) Arguments {
 	return s.Stub.MethodCalled(method, arguments...)
 }
 
-func (s *Spy) NumberOfCall(methodName string) int {
+func (s *Spy) NumberOfCalls(methodName string) int {
 	count := 0
 	for _, call := range s.ActualCalls {
 		if call.MethodName == methodName {
@@ -27,7 +27,7 @@ func (s *Spy) NumberOfCall(methodName string) int {
 	return count
 }
 
-func (s *Spy) NumberOfCallWithArguments(methodName string, arguments ...interface{}) int {
+func (s *Spy) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	count := 0
 	for _, call := range s.ActualCalls {
 		if call.MethodName == methodName && call.Arguments.Equal(arguments...) {

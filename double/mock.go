@@ -23,16 +23,16 @@ var _ TestingT = (*testing.T)(nil)
 func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
 	t.Helper()
 
-	actualCalls := m.NumberOfCall(methodName)
+	numberOfCalls := m.NumberOfCalls(methodName)
 
-	return assert.Equal(t, expectedCalls, actualCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, actualCalls))
+	return assert.Equal(t, expectedCalls, numberOfCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, numberOfCalls))
 }
 
 func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
-	result := m.NumberOfCallWithArguments(methodName, arguments...) > 0
-	if !result {
+	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)
+	if numberOfCalls == 0 {
 		var calledWithArgs []string
 		for _, call := range m.ActualCalls {
 			if call.MethodName == methodName {
@@ -48,14 +48,15 @@ func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interfac
 		return assert.Fail(t, "Should have called with given arguments", fmt.Sprintf("Expected %q to have been called with:\n%v\nbut actual calls were:\n        %v", methodName, arguments, strings.Join(calledWithArgs, "\n")))
 	}
 
-	return result
+	return true
 }
 
 func (m *Mock) AssertNotCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
-	numberOfCall := m.NumberOfCallWithArguments(methodName, arguments...)
-	if numberOfCall > 0 {
+	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)
+
+	if numberOfCalls > 0 {
 		return assert.Fail(t, "Should not have called with given arguments",
 			fmt.Sprintf("Expected %q to not have been called with:\n%v\nbut actually it was.", methodName, arguments))
 	}
