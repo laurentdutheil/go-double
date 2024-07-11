@@ -139,6 +139,89 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 }
 
+func TestMock_AssertNotCall(t *testing.T) {
+
+	t.Run("t.Helper is called", func(t *testing.T) {
+		mock := MockExample{}
+		st := &SpiedTestingT{}
+
+		mock.AssertNotCalled(st, "Method")
+
+		assert.True(t, st.helperCalled)
+	})
+
+	t.Run("Return false when method is called", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+		mock.Method()
+
+		result := mock.AssertNotCalled(tt, "Method")
+
+		assert.False(t, result)
+	})
+
+	t.Run("Return true when method is not called", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+
+		result := mock.AssertNotCalled(tt, "Method")
+
+		assert.True(t, result)
+	})
+
+	t.Run("t.Errorf is called with right message when method is called", func(t *testing.T) {
+		mock := MockExample{}
+		st := &SpiedTestingT{}
+		mock.Method()
+
+		mock.AssertNotCalled(st, "Method")
+
+		assert.Equal(t, "\n%s", st.errorfFormat)
+		errorMessage := st.errorfArgs[0]
+		assert.Contains(t, errorMessage, "Error Trace:")
+		assert.Contains(t, errorMessage, "Should not have called with given arguments")
+		assert.Contains(t, errorMessage, "Expected \"Method\" to not have been called with:")
+		assert.Contains(t, errorMessage, "[]")
+		assert.Contains(t, errorMessage, "but actually it was.")
+	})
+
+	t.Run("Return true when method is called with other arguments", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+		mock.MethodWithArguments(2, "1", 1.0)
+
+		result := mock.AssertNotCalled(tt, "MethodWithArguments", 1, "1", 1.0)
+
+		assert.True(t, result)
+	})
+
+	t.Run("Return false when method is called with same arguments", func(t *testing.T) {
+		mock := MockExample{}
+		tt := new(testing.T)
+		mock.MethodWithArguments(1, "1", 1.0)
+
+		result := mock.AssertNotCalled(tt, "MethodWithArguments", 1, "1", 1.0)
+
+		assert.False(t, result)
+	})
+
+	t.Run("t.Errorf is called with right message when method is called with same arguments", func(t *testing.T) {
+		mock := MockExample{}
+		st := &SpiedTestingT{}
+		mock.MethodWithArguments(1, "3", 1.2)
+
+		mock.AssertNotCalled(st, "MethodWithArguments", 1, "3", 1.2)
+
+		assert.Equal(t, "\n%s", st.errorfFormat)
+		errorMessage := st.errorfArgs[0]
+		assert.Contains(t, errorMessage, "Error Trace:")
+		assert.Contains(t, errorMessage, "Should not have called with given arguments")
+		assert.Contains(t, errorMessage, "Expected \"MethodWithArguments\" to not have been called with:")
+		assert.Contains(t, errorMessage, "[1 3 1.2]")
+		assert.Contains(t, errorMessage, "but actually it was.")
+	})
+}
+
 type SpiedTestingT struct {
 	errorfFormat string
 	errorfArgs   []interface{}

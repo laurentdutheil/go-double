@@ -23,7 +23,7 @@ var _ TestingT = (*testing.T)(nil)
 func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
 	t.Helper()
 
-	actualCalls := m.Spy.NumberOfCall(methodName)
+	actualCalls := m.NumberOfCall(methodName)
 
 	return assert.Equal(t, expectedCalls, actualCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, actualCalls))
 }
@@ -31,7 +31,7 @@ func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls 
 func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
-	result := m.Spy.NumberOfCallWithArguments(methodName, arguments...) > 0
+	result := m.NumberOfCallWithArguments(methodName, arguments...) > 0
 	if !result {
 		var calledWithArgs []string
 		for _, call := range m.ActualCalls {
@@ -49,4 +49,15 @@ func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interfac
 	}
 
 	return result
+}
+
+func (m *Mock) AssertNotCalled(t TestingT, methodName string, arguments ...interface{}) bool {
+	t.Helper()
+
+	numberOfCall := m.NumberOfCallWithArguments(methodName, arguments...)
+	if numberOfCall > 0 {
+		return assert.Fail(t, "Should not have called with given arguments",
+			fmt.Sprintf("Expected %q to not have been called with:\n%v\nbut actually it was.", methodName, arguments))
+	}
+	return true
 }
