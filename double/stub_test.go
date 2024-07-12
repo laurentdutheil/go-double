@@ -65,14 +65,19 @@ func TestStub_On_Return(t *testing.T) {
 		assert.Equal(t, expectedErr, err)
 	})
 
-	t.Run("Panics when arguments don't match", func(t *testing.T) {
-		stub := double.New[StubExample](t)
+	t.Run("FailNow when arguments don't match", func(t *testing.T) {
+		st := &SpiedTestingT{}
+		stub := double.New[StubExample](st)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(expectedInt, expectedErr)
 
-		expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithArgumentsAndReturnArguments\").Return(...) first"
-		assert.PanicsWithValue(t, expectedError, func() { _, _ = stub.MethodWithArgumentsAndReturnArguments(12, "", 1.0) })
+		st.AssertFailNowWasCalled(t, func() {
+			_, _ = stub.MethodWithArgumentsAndReturnArguments(12, "", 1.0)
+		})
+		assert.Equal(t, "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", st.errorfFormat)
+		errorMethodeName := st.errorfArgs[0]
+		assert.Equal(t, errorMethodeName, "MethodWithArgumentsAndReturnArguments")
 	})
 
 	t.Run("Don't panic when method have no return arguments. Even if there is no predefined call", func(t *testing.T) {
@@ -83,8 +88,9 @@ func TestStub_On_Return(t *testing.T) {
 }
 
 func TestStub_Times(t *testing.T) {
-	t.Run("Return predefined return arguments once. And panic on the additional call", func(t *testing.T) {
-		stub := double.New[StubExample](t)
+	t.Run("Return predefined return arguments once. And FailNow on the additional call", func(t *testing.T) {
+		st := &SpiedTestingT{}
+		stub := double.New[StubExample](st)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr).Once()
@@ -93,12 +99,14 @@ func TestStub_Times(t *testing.T) {
 		assert.Equal(t, expectedInt, aInt)
 		assert.Equal(t, expectedErr, err)
 
-		expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
-		assert.PanicsWithValue(t, expectedError, func() { _, _ = stub.MethodWithReturnArguments() })
+		st.AssertFailNowWasCalled(t, func() {
+			_, _ = stub.MethodWithReturnArguments()
+		})
 	})
 
 	t.Run("Return predefined return arguments twice. And panic on the additional call", func(t *testing.T) {
-		stub := double.New[StubExample](t)
+		st := &SpiedTestingT{}
+		stub := double.New[StubExample](st)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Twice()
 
@@ -108,12 +116,14 @@ func TestStub_Times(t *testing.T) {
 			assert.Equal(t, expectedErr, err)
 		}
 
-		expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
-		assert.PanicsWithValue(t, expectedError, func() { _, _ = stub.MethodWithReturnArguments() })
+		st.AssertFailNowWasCalled(t, func() {
+			_, _ = stub.MethodWithReturnArguments()
+		})
 	})
 
 	t.Run("Return predefined return arguments n times. And panic on the additional call", func(t *testing.T) {
-		stub := double.New[StubExample](t)
+		st := &SpiedTestingT{}
+		stub := double.New[StubExample](st)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Times(4)
 
@@ -123,12 +133,14 @@ func TestStub_Times(t *testing.T) {
 			assert.Equal(t, expectedErr, err)
 		}
 
-		expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
-		assert.PanicsWithValue(t, expectedError, func() { _, _ = stub.MethodWithReturnArguments() })
+		st.AssertFailNowWasCalled(t, func() {
+			_, _ = stub.MethodWithReturnArguments()
+		})
 	})
 
 	t.Run("Return different predefined return arguments. And panic on the additional call", func(t *testing.T) {
-		stub := double.New[StubExample](t)
+		st := &SpiedTestingT{}
+		stub := double.New[StubExample](st)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Once()
 		stub.On("MethodWithReturnArguments").Return(2, expectedErr).Once()
@@ -139,7 +151,8 @@ func TestStub_Times(t *testing.T) {
 			assert.Equal(t, expectedErr, err)
 		}
 
-		expectedError := "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithReturnArguments\").Return(...) first"
-		assert.PanicsWithValue(t, expectedError, func() { _, _ = stub.MethodWithReturnArguments() })
+		st.AssertFailNowWasCalled(t, func() {
+			_, _ = stub.MethodWithReturnArguments()
+		})
 	})
 }

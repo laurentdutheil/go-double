@@ -15,6 +15,7 @@ type Mock struct {
 type TestingT interface {
 	Errorf(format string, args ...interface{})
 	Helper()
+	FailNow()
 }
 
 // Check if TestingT interface can wrap testing.T

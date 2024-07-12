@@ -1,9 +1,5 @@
 package double
 
-import (
-	"fmt"
-)
-
 type Double[T any] interface {
 	Test(t TestingT)
 	Caller(caller interface{})
@@ -39,8 +35,8 @@ func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
 	foundCall := s.findPredefinedCall(method.Name, arguments...)
 
 	if foundCall == noCallFound && method.NumOut > 0 {
-		errorMessage := fmt.Sprintf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
-		panic(errorMessage)
+		s.t.Errorf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
+		s.t.FailNow()
 	}
 
 	foundCall.incrementNumberOfCall()

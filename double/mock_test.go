@@ -232,9 +232,10 @@ func TestMock_AssertNotCall(t *testing.T) {
 }
 
 type SpiedTestingT struct {
-	errorfFormat string
-	errorfArgs   []interface{}
-	helperCalled bool
+	errorfFormat  string
+	errorfArgs    []interface{}
+	helperCalled  bool
+	failNowCalled bool
 }
 
 func (s *SpiedTestingT) Errorf(format string, args ...interface{}) {
@@ -244,6 +245,16 @@ func (s *SpiedTestingT) Errorf(format string, args ...interface{}) {
 
 func (s *SpiedTestingT) Helper() {
 	s.helperCalled = true
+}
+
+func (s *SpiedTestingT) FailNow() {
+	s.failNowCalled = true
+	panic("SpiedTestingT.FailNow() called")
+}
+
+func (s *SpiedTestingT) AssertFailNowWasCalled(t *testing.T, f func()) {
+	assert.PanicsWithValue(t, "SpiedTestingT.FailNow() called", f)
+	assert.True(t, s.failNowCalled)
 }
 
 // Check if SpiedTestingT implements all methods of TestingT
