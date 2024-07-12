@@ -1,19 +1,5 @@
 package double
 
-type Double[T any] interface {
-	Test(t TestingT)
-	Caller(caller interface{})
-	*T
-}
-
-func New[T any, DT Double[T]](t TestingT) *T {
-	result := new(T)
-	dt := DT(result)
-	dt.Test(t)
-	dt.Caller(result)
-	return result
-}
-
 type Stub struct {
 	PredefinedCalls []*Call
 	t               TestingT

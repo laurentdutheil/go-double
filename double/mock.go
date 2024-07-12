@@ -4,22 +4,11 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
-	"testing"
 )
 
 type Mock struct {
 	Spy
 }
-
-// TestingT is an interface wrapper around *testing.T
-type TestingT interface {
-	Errorf(format string, args ...interface{})
-	Helper()
-	FailNow()
-}
-
-// Check if TestingT interface can wrap testing.T
-var _ TestingT = (*testing.T)(nil)
 
 func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
 	t.Helper()

@@ -1,11 +1,14 @@
 package double_test
 
 import (
-	"github.com/laurentdutheil/go-double/double"
+	"github.com/stretchr/testify/assert"
+	"testing"
+
+	. "github.com/laurentdutheil/go-double/double"
 )
 
 type StubExample struct {
-	double.Stub
+	Stub
 }
 
 func (s *StubExample) Method() {
@@ -27,7 +30,7 @@ func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString st
 }
 
 type SpyExample struct {
-	double.Spy
+	Spy
 }
 
 func (s *SpyExample) Method() {
@@ -49,7 +52,7 @@ func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString str
 }
 
 type MockExample struct {
-	double.Mock
+	Mock
 }
 
 func (s *MockExample) Method() {
@@ -73,3 +76,32 @@ func (s *MockExample) MethodWithArgumentsAndReturnArguments(aInt int, aString st
 	arguments := s.Called(aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
 }
+
+type SpiedTestingT struct {
+	errorfFormat  string
+	errorfArgs    []interface{}
+	helperCalled  bool
+	failNowCalled bool
+}
+
+func (s *SpiedTestingT) Errorf(format string, args ...interface{}) {
+	s.errorfFormat = format
+	s.errorfArgs = args
+}
+
+func (s *SpiedTestingT) Helper() {
+	s.helperCalled = true
+}
+
+func (s *SpiedTestingT) FailNow() {
+	s.failNowCalled = true
+	panic("SpiedTestingT.FailNow() called")
+}
+
+func (s *SpiedTestingT) AssertFailNowWasCalled(t *testing.T, f func()) {
+	assert.PanicsWithValue(t, "SpiedTestingT.FailNow() called", f)
+	assert.True(t, s.failNowCalled)
+}
+
+// Check if SpiedTestingT implements all methods of TestingT
+var _ TestingT = (*SpiedTestingT)(nil)
