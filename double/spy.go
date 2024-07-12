@@ -5,8 +5,8 @@ type Spy struct {
 	ActualCalls []Call
 }
 
-func (s *Spy) Called(caller interface{}, arguments ...interface{}) Arguments {
-	method := GetCallingMethod(caller)
+func (s *Spy) Called(arguments ...interface{}) Arguments {
+	method := GetCallingMethod(s.caller)
 	return s.MethodCalled(method, arguments...)
 }
 

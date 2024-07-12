@@ -2,13 +2,14 @@ package double_test
 
 import (
 	"fmt"
+	"github.com/laurentdutheil/go-double/double"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestStub_On(t *testing.T) {
 	t.Run("Predefine method name", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 
 		call := stub.On("Method")
 
@@ -17,7 +18,7 @@ func TestStub_On(t *testing.T) {
 	})
 
 	t.Run("Predefine method name and arguments", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 
 		call := stub.On("MethodWithArguments", 1, "2", 3.0)
 
@@ -30,9 +31,18 @@ func TestStub_On(t *testing.T) {
 	})
 }
 
+func TestStub_Called(t *testing.T) {
+	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
+		stub := &StubExample{}
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+	})
+}
+
 func TestStub_On_Return(t *testing.T) {
 	t.Run("Predefine return arguments", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr)
@@ -44,7 +54,7 @@ func TestStub_On_Return(t *testing.T) {
 	})
 
 	t.Run("Predefine return arguments with arguments checking", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(expectedInt, expectedErr)
@@ -56,7 +66,7 @@ func TestStub_On_Return(t *testing.T) {
 	})
 
 	t.Run("Panics when arguments don't match", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(expectedInt, expectedErr)
@@ -66,7 +76,7 @@ func TestStub_On_Return(t *testing.T) {
 	})
 
 	t.Run("Don't panic when method have no return arguments. Even if there is no predefined call", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 
 		assert.NotPanics(t, func() { stub.Method() })
 	})
@@ -74,7 +84,7 @@ func TestStub_On_Return(t *testing.T) {
 
 func TestStub_Times(t *testing.T) {
 	t.Run("Return predefined return arguments once. And panic on the additional call", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr).Once()
@@ -88,7 +98,7 @@ func TestStub_Times(t *testing.T) {
 	})
 
 	t.Run("Return predefined return arguments twice. And panic on the additional call", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Twice()
 
@@ -103,7 +113,7 @@ func TestStub_Times(t *testing.T) {
 	})
 
 	t.Run("Return predefined return arguments n times. And panic on the additional call", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Times(4)
 
@@ -118,7 +128,7 @@ func TestStub_Times(t *testing.T) {
 	})
 
 	t.Run("Return different predefined return arguments. And panic on the additional call", func(t *testing.T) {
-		stub := &StubExample{}
+		stub := double.New[StubExample](t)
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(1, expectedErr).Once()
 		stub.On("MethodWithReturnArguments").Return(2, expectedErr).Once()

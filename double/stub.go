@@ -4,8 +4,24 @@ import (
 	"fmt"
 )
 
+type Double[T any] interface {
+	Test(t TestingT)
+	Caller(caller interface{})
+	*T
+}
+
+func New[T any, DT Double[T]](t TestingT) *T {
+	result := new(T)
+	dt := DT(result)
+	dt.Test(t)
+	dt.Caller(result)
+	return result
+}
+
 type Stub struct {
 	PredefinedCalls []*Call
+	t               TestingT
+	caller          interface{}
 }
 
 func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
@@ -14,8 +30,8 @@ func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 	return call
 }
 
-func (s *Stub) Called(caller interface{}, arguments ...interface{}) Arguments {
-	method := GetCallingMethod(caller)
+func (s *Stub) Called(arguments ...interface{}) Arguments {
+	method := GetCallingMethod(s.caller)
 	return s.MethodCalled(method, arguments...)
 }
 
@@ -29,6 +45,14 @@ func (s *Stub) MethodCalled(method Method, arguments ...interface{}) Arguments {
 
 	foundCall.incrementNumberOfCall()
 	return foundCall.ReturnArguments
+}
+
+func (s *Stub) Test(t TestingT) {
+	s.t = t
+}
+
+func (s *Stub) Caller(caller interface{}) {
+	s.caller = caller
 }
 
 func (s *Stub) findPredefinedCall(methodName string, arguments ...interface{}) *Call {

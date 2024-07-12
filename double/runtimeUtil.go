@@ -38,6 +38,10 @@ func GetCallingFunctionName(skipFrames int) string {
 }
 
 func GetCallingMethod(caller interface{}) Method {
+	if caller == nil {
+		panic("Please use double.New constructor to initialize correctly.")
+	}
+
 	functionName := GetCallingFunctionName(3)
 	typeOfCaller := reflect.TypeOf(caller)
 	method, _ := typeOfCaller.MethodByName(functionName)

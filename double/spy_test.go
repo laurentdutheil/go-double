@@ -7,8 +7,17 @@ import (
 	. "github.com/laurentdutheil/go-double/double"
 )
 
+func TestSpy_Called(t *testing.T) {
+	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
+		stub := &SpyExample{}
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+	})
+}
+
 func TestSpy_Called_RegisterActualCall(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	spy.Method()
 
@@ -17,7 +26,7 @@ func TestSpy_Called_RegisterActualCall(t *testing.T) {
 }
 
 func TestSpy_Called_RegisterActualCallWithArguments(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	spy.MethodWithArguments(123, "123", 123.0)
 
@@ -26,13 +35,13 @@ func TestSpy_Called_RegisterActualCallWithArguments(t *testing.T) {
 }
 
 func TestSpy_NumberOfCall_ZeroCall(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	assert.Equal(t, 0, spy.NumberOfCalls("Method"))
 }
 
 func TestSpy_NumberOfCall_SeveralCalls(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	spy.Method()
 	spy.Method()
@@ -41,13 +50,13 @@ func TestSpy_NumberOfCall_SeveralCalls(t *testing.T) {
 }
 
 func TestSpy_NumberOfCallWithArguments_ZeroCall(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	assert.Equal(t, 0, spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0))
 }
 
 func TestSpy_NumberOfCallWithArguments_OneCallWithWrongArguments(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	spy.MethodWithArguments(0, "2", 3.0)
 
@@ -55,7 +64,7 @@ func TestSpy_NumberOfCallWithArguments_OneCallWithWrongArguments(t *testing.T) {
 }
 
 func TestSpy_NumberOfCallWithArguments_SeveralCalls(t *testing.T) {
-	spy := &SpyExample{}
+	spy := New[SpyExample](t)
 
 	spy.MethodWithArguments(1, "2", 3.0)
 	spy.MethodWithArguments(1, "2", 3.0)
