@@ -38,4 +38,13 @@ func TestArguments_Equals(t *testing.T) {
 		assert.True(t, args.Equal([]int{1, 2, 3}))
 		assert.False(t, args.Equal([]int{4, 2, 3}))
 	})
+
+	t.Run("compare with Anything argument", func(t *testing.T) {
+		var args = Arguments{1, Anything, 3}
+
+		assert.True(t, args.Equal(1, 2, 3))
+		assert.True(t, args.Equal(1, "String", 3))
+		assert.True(t, args.Equal(1, 4.5, 3))
+		assert.True(t, args.Equal(1, 2, Anything))
+	})
 }
