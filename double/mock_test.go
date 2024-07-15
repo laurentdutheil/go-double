@@ -9,18 +9,25 @@ import (
 
 func TestMock_Called(t *testing.T) {
 	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
-		stub := &MockExample{}
+		mock := &MockExample{}
 
 		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+		assert.PanicsWithValue(t, expectedMessage, func() { mock.Method() })
+	})
+
+	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
+		mock := New[StubExample](nil)
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { mock.Method() })
 	})
 }
 
 func TestMock_AssertNumberOfCalls(t *testing.T) {
 
 	t.Run("t.Helper is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 
 		mock.AssertNumberOfCalls(st, "Method", 1)
 
@@ -28,8 +35,8 @@ func TestMock_AssertNumberOfCalls(t *testing.T) {
 	})
 
 	t.Run("Return false when number of calls is incorrect", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 
 		result := mock.AssertNumberOfCalls(tt, "Method", 1)
 
@@ -37,8 +44,8 @@ func TestMock_AssertNumberOfCalls(t *testing.T) {
 	})
 
 	t.Run("Return true when number of calls is correct", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.Method()
 
 		result := mock.AssertNumberOfCalls(tt, "Method", 1)
@@ -47,8 +54,8 @@ func TestMock_AssertNumberOfCalls(t *testing.T) {
 	})
 
 	t.Run("t.Errorf is called with right message when number of calls is incorrect", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 		mock.Method()
 
 		mock.AssertNumberOfCalls(st, "Method", 2)
@@ -64,8 +71,8 @@ func TestMock_AssertNumberOfCalls(t *testing.T) {
 func TestMock_AssertCall(t *testing.T) {
 
 	t.Run("t.Helper is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 
 		mock.AssertCalled(st, "Method")
 
@@ -73,8 +80,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("Return false when method is not called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 
 		result := mock.AssertCalled(tt, "Method")
 
@@ -82,8 +89,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("Return true when method is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.Method()
 
 		result := mock.AssertCalled(tt, "Method")
@@ -92,8 +99,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("t.Errorf is called with right message when method is not called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 
 		mock.AssertCalled(st, "Method")
 
@@ -107,8 +114,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("Return true when method is called with right arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.MethodWithArguments(1, "1", 1.0)
 
 		result := mock.AssertCalled(tt, "MethodWithArguments", 1, "1", 1.0)
@@ -117,8 +124,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("Return false when method is called with wrong arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.MethodWithArguments(2, "1", 1.0)
 
 		result := mock.AssertCalled(tt, "MethodWithArguments", 1, "1", 1.0)
@@ -127,8 +134,8 @@ func TestMock_AssertCall(t *testing.T) {
 	})
 
 	t.Run("t.Errorf is called with right message when method is called with wrong arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 		mock.MethodWithArguments(2, "1", 1.0)
 		mock.MethodWithArguments(1, "3", 1.2)
 		mock.MethodWithOneArgument(4)
@@ -151,8 +158,8 @@ func TestMock_AssertCall(t *testing.T) {
 func TestMock_AssertNotCall(t *testing.T) {
 
 	t.Run("t.Helper is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 
 		mock.AssertNotCalled(st, "Method")
 
@@ -160,8 +167,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("Return false when method is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.Method()
 
 		result := mock.AssertNotCalled(tt, "Method")
@@ -170,8 +177,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("Return true when method is not called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 
 		result := mock.AssertNotCalled(tt, "Method")
 
@@ -179,8 +186,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("t.Errorf is called with right message when method is called", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 		mock.Method()
 
 		mock.AssertNotCalled(st, "Method")
@@ -195,8 +202,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("Return true when method is called with other arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.MethodWithArguments(2, "1", 1.0)
 
 		result := mock.AssertNotCalled(tt, "MethodWithArguments", 1, "1", 1.0)
@@ -205,8 +212,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("Return false when method is called with same arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		tt := new(testing.T)
+		mock := New[MockExample](tt)
 		mock.MethodWithArguments(1, "1", 1.0)
 
 		result := mock.AssertNotCalled(tt, "MethodWithArguments", 1, "1", 1.0)
@@ -215,8 +222,8 @@ func TestMock_AssertNotCall(t *testing.T) {
 	})
 
 	t.Run("t.Errorf is called with right message when method is called with same arguments", func(t *testing.T) {
-		mock := New[MockExample](t)
 		st := &SpiedTestingT{}
+		mock := New[MockExample](st)
 		mock.MethodWithArguments(1, "3", 1.2)
 
 		mock.AssertNotCalled(st, "MethodWithArguments", 1, "3", 1.2)

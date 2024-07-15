@@ -9,15 +9,23 @@ import (
 
 func TestSpy_Called(t *testing.T) {
 	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
-		stub := &SpyExample{}
+		spy := &SpyExample{}
 
 		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+		assert.PanicsWithValue(t, expectedMessage, func() { spy.Method() })
+	})
+
+	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
+		spy := New[StubExample](nil)
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { spy.Method() })
 	})
 }
 
 func TestSpy_Called_RegisterActualCall(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	spy.Method()
 
@@ -26,7 +34,8 @@ func TestSpy_Called_RegisterActualCall(t *testing.T) {
 }
 
 func TestSpy_Called_RegisterActualCallWithArguments(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	spy.MethodWithArguments(123, "123", 123.0)
 
@@ -35,13 +44,15 @@ func TestSpy_Called_RegisterActualCallWithArguments(t *testing.T) {
 }
 
 func TestSpy_NumberOfCall_ZeroCall(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	assert.Equal(t, 0, spy.NumberOfCalls("Method"))
 }
 
 func TestSpy_NumberOfCall_SeveralCalls(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	spy.Method()
 	spy.Method()
@@ -50,13 +61,15 @@ func TestSpy_NumberOfCall_SeveralCalls(t *testing.T) {
 }
 
 func TestSpy_NumberOfCallWithArguments_ZeroCall(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	assert.Equal(t, 0, spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0))
 }
 
 func TestSpy_NumberOfCallWithArguments_OneCallWithWrongArguments(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	spy.MethodWithArguments(0, "2", 3.0)
 
@@ -64,7 +77,8 @@ func TestSpy_NumberOfCallWithArguments_OneCallWithWrongArguments(t *testing.T) {
 }
 
 func TestSpy_NumberOfCallWithArguments_SeveralCalls(t *testing.T) {
-	spy := New[SpyExample](t)
+	tt := new(testing.T)
+	spy := New[SpyExample](tt)
 
 	spy.MethodWithArguments(1, "2", 3.0)
 	spy.MethodWithArguments(1, "2", 3.0)

@@ -10,7 +10,8 @@ import (
 
 func TestStub_On(t *testing.T) {
 	t.Run("Predefine method name", func(t *testing.T) {
-		stub := New[StubExample](t)
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
 
 		call := stub.On("Method")
 
@@ -19,7 +20,8 @@ func TestStub_On(t *testing.T) {
 	})
 
 	t.Run("Predefine method name and arguments", func(t *testing.T) {
-		stub := New[StubExample](t)
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
 
 		call := stub.On("MethodWithArguments", 1, "2", 3.0)
 
@@ -39,11 +41,19 @@ func TestStub_Called(t *testing.T) {
 		expectedMessage := "Please use double.New constructor to initialize correctly."
 		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
 	})
+
+	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
+		stub := New[StubExample](nil)
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+	})
 }
 
 func TestStub_On_Return(t *testing.T) {
 	t.Run("Predefine return arguments", func(t *testing.T) {
-		stub := New[StubExample](t)
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithReturnArguments").Return(expectedInt, expectedErr)
@@ -55,7 +65,8 @@ func TestStub_On_Return(t *testing.T) {
 	})
 
 	t.Run("Predefine return arguments with arguments checking", func(t *testing.T) {
-		stub := New[StubExample](t)
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
 		expectedInt := 1
 		expectedErr := fmt.Errorf("stubbed error")
 		stub.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(expectedInt, expectedErr)
@@ -82,7 +93,8 @@ func TestStub_On_Return(t *testing.T) {
 	})
 
 	t.Run("Don't panic when method have no return arguments. Even if there is no predefined call", func(t *testing.T) {
-		stub := New[StubExample](t)
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
 
 		assert.NotPanics(t, func() { stub.Method() })
 	})
