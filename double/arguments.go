@@ -13,6 +13,14 @@ func AnythingOfType(t string) AnythingOfTypeArgument {
 	return AnythingOfTypeArgument(t)
 }
 
+type IsTypeArgument struct {
+	t reflect.Type
+}
+
+func IsType(t interface{}) *IsTypeArgument {
+	return &IsTypeArgument{t: reflect.TypeOf(t)}
+}
+
 type Arguments []interface{}
 
 func (a Arguments) Matches(arguments ...interface{}) bool {
@@ -24,6 +32,11 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 		switch expected := a[i].(type) {
 		case AnythingOfTypeArgument:
 			if reflect.TypeOf(expected).Name() != string(expected) && reflect.TypeOf(argument).Name() != string(expected) {
+				return false
+			}
+		case *IsTypeArgument:
+			actualT := reflect.TypeOf(argument)
+			if actualT != expected.t {
 				return false
 			}
 		default:

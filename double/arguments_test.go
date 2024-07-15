@@ -56,4 +56,12 @@ func TestArguments_Matches(t *testing.T) {
 		assert.False(t, args.Matches("any string", "any string", 1.0))
 		assert.False(t, args.Matches(2, 2, 1.0))
 	})
+
+	t.Run("compare IsType argument", func(t *testing.T) {
+		var args = Arguments([]interface{}{"string", IsType(0), true})
+
+		assert.True(t, args.Matches("string", 123, true))
+		assert.False(t, args.Matches("string", "string", true))
+	})
+
 }
