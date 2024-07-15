@@ -40,7 +40,7 @@ func (s *Stub[T]) Test(t TestingT) {
 func (s *Stub[T]) findPredefinedCall(methodName string, arguments ...interface{}) *Call {
 	for _, predefinedCall := range s.PredefinedCalls {
 		if methodName == predefinedCall.MethodName {
-			if !predefinedCall.Arguments.Equal(arguments...) ||
+			if !predefinedCall.Arguments.Matches(arguments...) ||
 				predefinedCall.alreadyCalledPredefinedTimes() {
 				continue
 			}

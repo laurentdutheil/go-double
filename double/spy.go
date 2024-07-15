@@ -34,7 +34,7 @@ func (s *Spy[T]) NumberOfCalls(methodName string) int {
 func (s *Spy[T]) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	count := 0
 	for _, call := range s.ActualCalls {
-		if call.MethodName == methodName && call.Arguments.Equal(arguments...) {
+		if call.MethodName == methodName && call.Arguments.Matches(arguments...) {
 			count++
 		}
 	}

@@ -6,7 +6,7 @@ const Anything = "double.Anything"
 
 type Arguments []interface{}
 
-func (a Arguments) Equal(arguments ...interface{}) bool {
+func (a Arguments) Matches(arguments ...interface{}) bool {
 	if len(a) != len(arguments) {
 		return false
 	}
