@@ -8,6 +8,14 @@ import (
 )
 
 func TestArguments_Equals(t *testing.T) {
+	t.Run("false if length are different", func(t *testing.T) {
+		var args = Arguments{123}
+		assert.False(t, args.Equal(123, true))
+
+		args = Arguments{123, true, 1.0}
+		assert.False(t, args.Equal(123, true))
+	})
+
 	t.Run("compare primitives", func(t *testing.T) {
 		var args = Arguments{123, true, 1.0}
 
