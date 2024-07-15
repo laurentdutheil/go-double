@@ -1,16 +1,5 @@
 package double
 
-type Arguments []interface{}
-
-func (a Arguments) Equal(arguments ...interface{}) bool {
-	for i, argument := range arguments {
-		if a[i] != argument {
-			return false
-		}
-	}
-	return true
-}
-
 type Call struct {
 	MethodName      string
 	Arguments       Arguments
