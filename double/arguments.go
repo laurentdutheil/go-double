@@ -1,8 +1,17 @@
 package double
 
-import "github.com/stretchr/testify/assert"
+import (
+	"github.com/stretchr/testify/assert"
+	"reflect"
+)
 
 const Anything = "double.Anything"
+
+type AnythingOfTypeArgument string
+
+func AnythingOfType(t string) AnythingOfTypeArgument {
+	return AnythingOfTypeArgument(t)
+}
 
 type Arguments []interface{}
 
@@ -12,11 +21,18 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 	}
 
 	for i, argument := range arguments {
-		if assert.ObjectsAreEqual(a[i], Anything) || assert.ObjectsAreEqual(argument, Anything) {
-			continue
-		}
-		if !assert.ObjectsAreEqual(a[i], argument) {
-			return false
+		switch expected := a[i].(type) {
+		case AnythingOfTypeArgument:
+			if reflect.TypeOf(expected).Name() != string(expected) && reflect.TypeOf(argument).Name() != string(expected) {
+				return false
+			}
+		default:
+			if assert.ObjectsAreEqual(a[i], Anything) || assert.ObjectsAreEqual(argument, Anything) {
+				continue
+			}
+			if !assert.ObjectsAreEqual(a[i], argument) {
+				return false
+			}
 		}
 	}
 	return true

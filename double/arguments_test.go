@@ -47,4 +47,13 @@ func TestArguments_Matches(t *testing.T) {
 		assert.True(t, args.Matches(1, 4.5, 3))
 		assert.True(t, args.Matches(1, 2, Anything))
 	})
+
+	t.Run("compare with AnythingOfType argument", func(t *testing.T) {
+		var args = Arguments{AnythingOfType("int"), AnythingOfType("string"), 1.0}
+
+		assert.True(t, args.Matches(1, "String", 1.0))
+		assert.True(t, args.Matches(2, "any string", 1.0))
+		assert.False(t, args.Matches("any string", "any string", 1.0))
+		assert.False(t, args.Matches(2, 2, 1.0))
+	})
 }
