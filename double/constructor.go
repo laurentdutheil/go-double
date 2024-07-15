@@ -12,17 +12,15 @@ import "testing"
 //		myMock := New[MockExample](t)
 //		...
 //	}
-func New[T any, DT Double[T]](t TestingT) *T {
+func New[T interface{}, DT Double[T]](t TestingT) *T {
 	result := new(T)
 	dt := DT(result)
 	dt.Test(t)
-	dt.Caller(result)
 	return result
 }
 
-type Double[T any] interface {
+type Double[T interface{}] interface {
 	Test(t TestingT)
-	Caller(caller interface{})
 	*T
 }
 

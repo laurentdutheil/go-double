@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-type Mock struct {
-	Spy
+type Mock[T interface{}] struct {
+	Spy[T]
 }
 
-func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
+func (m *Mock[T]) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
 	t.Helper()
 
 	numberOfCalls := m.NumberOfCalls(methodName)
@@ -18,7 +18,7 @@ func (m *Mock) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls 
 	return assert.Equal(t, expectedCalls, numberOfCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, numberOfCalls))
 }
 
-func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
+func (m *Mock[T]) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
 	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)
@@ -41,7 +41,7 @@ func (m *Mock) AssertCalled(t TestingT, methodName string, arguments ...interfac
 	return true
 }
 
-func (m *Mock) AssertNotCalled(t TestingT, methodName string, arguments ...interface{}) bool {
+func (m *Mock[T]) AssertNotCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
 	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)

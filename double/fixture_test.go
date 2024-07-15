@@ -8,7 +8,7 @@ import (
 )
 
 type StubExample struct {
-	Stub
+	Stub[StubExample]
 }
 
 func (s *StubExample) Method() {
@@ -30,7 +30,7 @@ func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString st
 }
 
 type SpyExample struct {
-	Spy
+	Spy[SpyExample]
 }
 
 func (s *SpyExample) Method() {
@@ -52,7 +52,7 @@ func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString str
 }
 
 type MockExample struct {
-	Mock
+	Mock[MockExample]
 }
 
 func (s *MockExample) Method() {
