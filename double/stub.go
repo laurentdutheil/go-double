@@ -1,14 +1,14 @@
 package double
 
 type Stub[T interface{}] struct {
-	PredefinedCalls []*Call
+	predefinedCalls Calls
 	t               TestingT
 	caller          *T
 }
 
 func (s *Stub[T]) On(methodName string, arguments ...interface{}) *Call {
 	call := NewCall(methodName, arguments...)
-	s.PredefinedCalls = append(s.PredefinedCalls, call)
+	s.predefinedCalls = append(s.predefinedCalls, call)
 	return call
 }
 
@@ -22,7 +22,7 @@ func (s *Stub[T]) Called(arguments ...interface{}) Arguments {
 }
 
 func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Arguments {
-	foundCall := s.findPredefinedCall(method.Name, arguments...)
+	foundCall := s.predefinedCalls.find(method.Name, arguments...)
 
 	if foundCall == noCallFound && method.NumOut > 0 {
 		s.t.Errorf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
@@ -42,17 +42,6 @@ func (s *Stub[T]) Test(t TestingT) {
 	s.t = t
 }
 
-func (s *Stub[T]) findPredefinedCall(methodName string, arguments ...interface{}) *Call {
-	for _, predefinedCall := range s.PredefinedCalls {
-		if methodName == predefinedCall.MethodName {
-			if !predefinedCall.Arguments.Matches(arguments...) ||
-				predefinedCall.alreadyCalledPredefinedTimes() {
-				continue
-			}
-			return predefinedCall
-		}
-	}
-	return noCallFound
+func (s *Stub[T]) PredefinedCalls() []*Call {
+	return s.predefinedCalls
 }
-
-var noCallFound = NewCall("-CallNotFound-")

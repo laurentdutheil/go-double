@@ -46,3 +46,19 @@ type Method struct {
 	Name   string
 	NumOut int
 }
+
+type Calls []*Call
+
+func (c Calls) find(methodName string, arguments ...interface{}) *Call {
+	for _, predefinedCall := range c {
+		if methodName == predefinedCall.MethodName {
+			if !predefinedCall.Arguments.Matches(arguments...) || predefinedCall.alreadyCalledPredefinedTimes() {
+				continue
+			}
+			return predefinedCall
+		}
+	}
+	return noCallFound
+}
+
+var noCallFound = NewCall("-CallNotFound-")

@@ -16,7 +16,7 @@ func TestStub_On(t *testing.T) {
 		call := stub.On("Method")
 
 		assert.Equal(t, "Method", call.MethodName)
-		assert.Contains(t, stub.PredefinedCalls, call)
+		assert.Contains(t, stub.PredefinedCalls(), call)
 	})
 
 	t.Run("Predefine method name and arguments", func(t *testing.T) {
@@ -26,7 +26,7 @@ func TestStub_On(t *testing.T) {
 		call := stub.On("MethodWithArguments", 1, "2", 3.0)
 
 		assert.Equal(t, "MethodWithArguments", call.MethodName)
-		assert.Contains(t, stub.PredefinedCalls, call)
+		assert.Contains(t, stub.PredefinedCalls(), call)
 		assert.Len(t, call.Arguments, 3)
 		assert.Contains(t, call.Arguments, 1)
 		assert.Contains(t, call.Arguments, "2")
