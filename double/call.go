@@ -35,9 +35,7 @@ func (c *Call) alreadyCalledPredefinedTimes() bool {
 }
 
 func (c *Call) incrementNumberOfCall() {
-	if c.times > 0 {
-		c.callCounter++
-	}
+	c.callCounter++
 }
 
 func (c *Call) Panic(panicMessage string) {
