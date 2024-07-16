@@ -169,3 +169,15 @@ func TestStub_Times(t *testing.T) {
 		})
 	})
 }
+
+func TestStub_On_Panic(t *testing.T) {
+	t.Run("Panic when predefined call say so", func(t *testing.T) {
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
+		stub.On("Method").Panic("panic message for example method")
+
+		assert.PanicsWithValue(t, "panic message for example method", func() {
+			stub.Method()
+		})
+	})
+}

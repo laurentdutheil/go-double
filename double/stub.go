@@ -30,6 +30,11 @@ func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Argument
 	}
 
 	foundCall.incrementNumberOfCall()
+
+	if foundCall.panicMessage != nil {
+		panic(*foundCall.panicMessage)
+	}
+
 	return foundCall.ReturnArguments
 }
 

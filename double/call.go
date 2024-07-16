@@ -6,6 +6,7 @@ type Call struct {
 	ReturnArguments Arguments
 	times           int
 	callCounter     int
+	panicMessage    *string
 }
 
 func NewCall(methodName string, arguments ...interface{}) *Call {
@@ -37,6 +38,10 @@ func (c *Call) incrementNumberOfCall() {
 	if c.times > 0 {
 		c.callCounter++
 	}
+}
+
+func (c *Call) Panic(panicMessage string) {
+	c.panicMessage = &panicMessage
 }
 
 type Method struct {
