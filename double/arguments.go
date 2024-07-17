@@ -5,9 +5,73 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
+	"strings"
 )
 
 type Arguments []interface{}
+
+// Get Returns the argument at the specified index.
+func (a Arguments) Get(index int) interface{} {
+	if index+1 > len(a) {
+		panic(fmt.Sprintf("assert: arguments: Cannot call Get(%d) because there are %d argument(s).", index, len(a)))
+	}
+	return a[index]
+}
+
+func (a Arguments) String(indexOrNil ...int) string {
+	if len(indexOrNil) == 0 {
+		// normal String() method - return a string representation of the args
+		var argsStr []string
+		for _, arg := range a {
+			argsStr = append(argsStr, fmt.Sprintf("%T", arg)) // handles nil nicely
+		}
+		return strings.Join(argsStr, ",")
+	} else if len(indexOrNil) == 1 {
+		// Index has been specified - get the argument at that index
+		index := indexOrNil[0]
+		var s string
+		var ok bool
+		if s, ok = a.Get(index).(string); !ok {
+			panic(fmt.Sprintf("assert: arguments: String(%d) failed because object wasn't correct type: %s", index, a.Get(index)))
+		}
+		return s
+	}
+
+	panic(fmt.Sprintf("assert: arguments: Wrong number of arguments passed to String.  Must be 0 or 1, not %d", len(indexOrNil)))
+}
+
+func (a Arguments) Error(index int) error {
+	obj := a.Get(index)
+	var s error
+	var ok bool
+	if obj == nil {
+		return nil
+	}
+	if s, ok = obj.(error); !ok {
+		panic(fmt.Sprintf("assert: arguments: Error(%d) failed because object wasn't correct type: %s", index, obj))
+	}
+	return s
+}
+
+func (a Arguments) Int(index int) int {
+	var s int
+	var ok bool
+	if s, ok = a.Get(index).(int); !ok {
+		panic(fmt.Sprintf("assert: arguments: Int(%d) failed because object wasn't correct type: %s", index, a.Get(index)))
+	}
+	return s
+}
+
+// Bool gets the argument at the specified index. Panics if there is no argument, or
+// if the argument is of the wrong type.
+func (a Arguments) Bool(index int) bool {
+	var s bool
+	var ok bool
+	if s, ok = a.Get(index).(bool); !ok {
+		panic(fmt.Sprintf("assert: arguments: Bool(%d) failed because object wasn't correct type: %s", index, a.Get(index)))
+	}
+	return s
+}
 
 func (a Arguments) Matches(arguments ...interface{}) bool {
 	if len(a) != len(arguments) {

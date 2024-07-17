@@ -1,12 +1,148 @@
 package double_test
 
 import (
+	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
 	. "github.com/laurentdutheil/go-double/double"
 )
+
+func TestArguments_Get(t *testing.T) {
+	t.Run("Return the value of the given argument", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", 123, true})
+
+		assert.Equal(t, "hello", args.Get(0).(string))
+		assert.Equal(t, 123, args.Get(1).(int))
+		assert.Equal(t, true, args.Get(2).(bool))
+	})
+
+	t.Run("Panic if the argument does not exist", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello"})
+
+		assert.PanicsWithValue(t, "assert: arguments: Cannot call Get(1) because there are 1 argument(s).", func() {
+			args.Get(1)
+		})
+	})
+}
+
+func TestArguments_String(t *testing.T) {
+	t.Run("normal String() method - return a string representation of the args", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", 123, true})
+
+		assert.Equal(t, `string,int,bool`, args.String())
+	})
+
+	t.Run("Return the value of the given argument", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", 123, true})
+
+		assert.Equal(t, "hello", args.String(0))
+	})
+
+	t.Run("Panic if the argument does not exist", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello"})
+
+		assert.PanicsWithValue(t, "assert: arguments: Cannot call Get(1) because there are 1 argument(s).", func() {
+			args.String(1)
+		})
+	})
+
+	t.Run("Panic if the argument is not a string", func(t *testing.T) {
+		var args = Arguments([]interface{}{true})
+
+		assert.PanicsWithValue(t, "assert: arguments: String(0) failed because object wasn't correct type: %!s(bool=true)", func() {
+			args.String(0)
+		})
+	})
+
+	t.Run("Panic if we pass more than one index", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", "world"})
+
+		assert.PanicsWithValue(t, "assert: arguments: Wrong number of arguments passed to String.  Must be 0 or 1, not 2", func() {
+			args.String(0, 1)
+		})
+	})
+}
+
+func TestArguments_Int(t *testing.T) {
+	t.Run("Return the value of the given argument", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", 123, true})
+
+		assert.Equal(t, 123, args.Int(1))
+	})
+
+	t.Run("Panic if the argument does not exist", func(t *testing.T) {
+		var args = Arguments([]interface{}{123})
+
+		assert.PanicsWithValue(t, "assert: arguments: Cannot call Get(1) because there are 1 argument(s).", func() {
+			args.Int(1)
+		})
+	})
+
+	t.Run("Panic if the argument is not an int", func(t *testing.T) {
+		var args = Arguments([]interface{}{true})
+
+		assert.PanicsWithValue(t, "assert: arguments: Int(0) failed because object wasn't correct type: %!s(bool=true)", func() {
+			args.Int(0)
+		})
+	})
+}
+
+func TestArguments_Error(t *testing.T) {
+	t.Run("Return the value of the given argument", func(t *testing.T) {
+		var err = errors.New("an Error")
+		var args = Arguments([]interface{}{"string", 123, true, err})
+
+		assert.Equal(t, err, args.Error(3))
+	})
+
+	t.Run("Return nil of the given argument is nil", func(t *testing.T) {
+		var args = Arguments([]interface{}{"string", 123, true, nil})
+
+		assert.Equal(t, nil, args.Error(3))
+	})
+
+	t.Run("Panic if the argument does not exist", func(t *testing.T) {
+		var args = Arguments([]interface{}{123})
+
+		assert.PanicsWithValue(t, "assert: arguments: Cannot call Get(1) because there are 1 argument(s).", func() {
+			_ = args.Error(1)
+		})
+	})
+
+	t.Run("Panic if the argument is not an error", func(t *testing.T) {
+		var args = Arguments([]interface{}{true})
+
+		assert.PanicsWithValue(t, "assert: arguments: Error(0) failed because object wasn't correct type: %!s(bool=true)", func() {
+			_ = args.Error(0)
+		})
+	})
+}
+
+func TestArguments_Bool(t *testing.T) {
+	t.Run("Return the value of the given argument", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello", 123, true})
+
+		assert.Equal(t, true, args.Bool(2))
+	})
+
+	t.Run("Panic if the argument does not exist", func(t *testing.T) {
+		var args = Arguments([]interface{}{"hello"})
+
+		assert.PanicsWithValue(t, "assert: arguments: Cannot call Get(1) because there are 1 argument(s).", func() {
+			args.Bool(1)
+		})
+	})
+
+	t.Run("Panic if the argument is not a boolean", func(t *testing.T) {
+		var args = Arguments([]interface{}{123})
+
+		assert.PanicsWithValue(t, "assert: arguments: Bool(0) failed because object wasn't correct type: %!s(int=123)", func() {
+			args.Bool(0)
+		})
+	})
+}
 
 func TestArguments_Matches(t *testing.T) {
 	t.Run("false if length are different", func(t *testing.T) {
