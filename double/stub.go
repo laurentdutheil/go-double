@@ -31,7 +31,7 @@ func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Argument
 		s.t.FailNow()
 	}
 
-	return foundCall.called()
+	return foundCall.called(arguments...)
 }
 
 func (s *Stub[T]) Test(t TestingT) {

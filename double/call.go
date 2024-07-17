@@ -13,6 +13,7 @@ type Call struct {
 	panicMessage    *string
 	waitFor         <-chan time.Time
 	waitTime        time.Duration
+	runFn           func(Arguments)
 }
 
 func NewCall(methodName string, arguments ...interface{}) *Call {
@@ -48,11 +49,15 @@ func (c *Call) After(duration time.Duration) {
 	c.waitTime = duration
 }
 
+func (c *Call) Run(fn func(Arguments)) {
+	c.runFn = fn
+}
+
 func (c *Call) alreadyCalledPredefinedTimes() bool {
 	return c.times > 0 && c.times == c.totalCalls
 }
 
-func (c *Call) called() Arguments {
+func (c *Call) called(arguments ...interface{}) Arguments {
 	c.totalCalls++
 
 	if c.waitFor != nil {
@@ -63,6 +68,10 @@ func (c *Call) called() Arguments {
 
 	if c.panicMessage != nil {
 		panic(*c.panicMessage)
+	}
+
+	if c.runFn != nil {
+		c.runFn(arguments)
 	}
 
 	return c.ReturnArguments

@@ -244,3 +244,34 @@ func TestStub_On_After(t *testing.T) {
 
 	})
 }
+
+func TestStub_On_Run(t *testing.T) {
+	t.Run("Run function on a called method without argument", func(t *testing.T) {
+		tt := new(testing.T)
+		stub := New[SpyExample](tt)
+		var called = false
+		fn := func(_ Arguments) {
+			called = true
+		}
+		stub.On("Method").Run(fn)
+
+		stub.Method()
+
+		assert.True(t, called)
+	})
+
+	t.Run("Run function on a called method with argument", func(t *testing.T) {
+		tt := new(testing.T)
+		stub := New[SpyExample](tt)
+		fn := func(args Arguments) {
+			arg := args[0].(*ExampleType)
+			arg.ran = true
+		}
+		stub.On("MethodWithReferenceArgument", AnythingOfType("*double_test.ExampleType")).Run(fn)
+
+		ref := &ExampleType{}
+		stub.MethodWithReferenceArgument(ref)
+
+		assert.True(t, ref.ran)
+	})
+}
