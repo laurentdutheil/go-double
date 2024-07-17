@@ -17,7 +17,7 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 	for i, argument := range arguments {
 		switch expectedType := a[i].(type) {
 		case AnythingOfTypeArgument:
-			if reflect.TypeOf(expectedType).Name() != string(expectedType) && reflect.TypeOf(argument).Name() != string(expectedType) {
+			if reflect.TypeOf(argument).Name() != string(expectedType) && reflect.TypeOf(argument).String() != string(expectedType) {
 				return false
 			}
 		case *IsTypeArgument:

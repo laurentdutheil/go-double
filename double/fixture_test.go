@@ -29,6 +29,10 @@ func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString st
 	return arguments[0].(int), arguments[1].(error)
 }
 
+func (s *StubExample) MethodWithReferenceArgument(ref *ExampleType) {
+	s.Called(ref)
+}
+
 type SpyExample struct {
 	Spy[SpyExample]
 }
@@ -49,6 +53,10 @@ func (s *SpyExample) MethodWithReturnArguments() (int, error) {
 func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
 	arguments := s.Called(aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
+}
+
+func (s *SpyExample) MethodWithReferenceArgument(ref *ExampleType) {
+	s.Called(ref)
 }
 
 type MockExample struct {
@@ -75,6 +83,14 @@ func (s *MockExample) MethodWithReturnArguments() (int, error) {
 func (s *MockExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
 	arguments := s.Called(aInt, aString, aFloat)
 	return arguments[0].(int), arguments[1].(error)
+}
+
+func (s *MockExample) MethodWithReferenceArgument(ref *ExampleType) {
+	s.Called(ref)
+}
+
+type ExampleType struct {
+	ran bool
 }
 
 type SpiedTestingT struct {

@@ -50,12 +50,13 @@ func TestArguments_Matches(t *testing.T) {
 	})
 
 	t.Run("compare with AnythingOfType argument", func(t *testing.T) {
-		var args = Arguments{AnythingOfType("int"), AnythingOfType("string"), 1.0}
+		var args = Arguments{AnythingOfType("int"), AnythingOfType("string"), AnythingOfType("*double_test.ExampleType")}
 
-		assert.True(t, args.Matches(1, "String", 1.0))
-		assert.True(t, args.Matches(2, "any string", 1.0))
-		assert.False(t, args.Matches("any string", "any string", 1.0))
-		assert.False(t, args.Matches(2, 2, 1.0))
+		assert.True(t, args.Matches(1, "String", &ExampleType{}))
+		assert.True(t, args.Matches(2, "any string", &ExampleType{}))
+		assert.False(t, args.Matches("any string", "any string", &ExampleType{}))
+		assert.False(t, args.Matches(2, 2, &ExampleType{}))
+		assert.False(t, args.Matches(2, "any string", ExampleType{}))
 	})
 
 	t.Run("compare IsType argument", func(t *testing.T) {
