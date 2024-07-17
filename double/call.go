@@ -83,8 +83,3 @@ func (c Calls) find(methodName string, arguments ...interface{}) *Call {
 }
 
 var noCallFound = NewCall("-CallNotFound-")
-
-type Method struct {
-	Name   string
-	NumOut int
-}

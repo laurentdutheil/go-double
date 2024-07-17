@@ -43,3 +43,8 @@ func GetCallingMethod(caller interface{}) Method {
 	method, _ := typeOfCaller.MethodByName(functionName)
 	return Method{functionName, method.Type.NumOut()}
 }
+
+type Method struct {
+	Name   string
+	NumOut int
+}
