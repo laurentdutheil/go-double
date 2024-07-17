@@ -213,3 +213,34 @@ func TestStub_On_WailUntil(t *testing.T) {
 
 	})
 }
+
+func TestStub_On_After(t *testing.T) {
+	t.Run("Wait until the duration", func(t *testing.T) {
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
+		stub.On("Method").After(10 * time.Millisecond)
+
+		done := make(chan string)
+		go func() {
+			stub.Method()
+			done <- "done"
+		}()
+
+		// check that it is not done before
+		select {
+		case <-time.After(5 * time.Millisecond):
+			// Pass
+		case <-done:
+			assert.Fail(t, "Have to wait until the duration")
+		}
+
+		// check that it is done after
+		select {
+		case <-time.After(20 * time.Millisecond):
+			assert.Fail(t, "The wait is too long")
+		case msg := <-done:
+			assert.Equal(t, "done", msg)
+		}
+
+	})
+}

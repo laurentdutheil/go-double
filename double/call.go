@@ -12,6 +12,7 @@ type Call struct {
 	callCounter     int
 	panicMessage    *string
 	waitFor         <-chan time.Time
+	waitTime        time.Duration
 }
 
 func NewCall(methodName string, arguments ...interface{}) *Call {
@@ -49,6 +50,10 @@ func (c *Call) Panic(panicMessage string) {
 
 func (c *Call) WaitUntil(w <-chan time.Time) {
 	c.waitFor = w
+}
+
+func (c *Call) After(duration time.Duration) {
+	c.waitTime = duration
 }
 
 type Method struct {
