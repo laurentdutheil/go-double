@@ -9,7 +9,7 @@ type Call struct {
 	Arguments       Arguments
 	ReturnArguments Arguments
 	times           int
-	callCounter     int
+	totalCalls      int
 	panicMessage    *string
 	waitFor         <-chan time.Time
 	waitTime        time.Duration
@@ -36,14 +36,6 @@ func (c *Call) Times(i int) {
 	c.times = i
 }
 
-func (c *Call) alreadyCalledPredefinedTimes() bool {
-	return c.times > 0 && c.times == c.callCounter
-}
-
-func (c *Call) incrementNumberOfCall() {
-	c.callCounter++
-}
-
 func (c *Call) Panic(panicMessage string) {
 	c.panicMessage = &panicMessage
 }
@@ -56,9 +48,24 @@ func (c *Call) After(duration time.Duration) {
 	c.waitTime = duration
 }
 
-type Method struct {
-	Name   string
-	NumOut int
+func (c *Call) alreadyCalledPredefinedTimes() bool {
+	return c.times > 0 && c.times == c.totalCalls
+}
+
+func (c *Call) called() Arguments {
+	c.totalCalls++
+
+	if c.waitFor != nil {
+		<-c.waitFor
+	} else {
+		time.Sleep(c.waitTime)
+	}
+
+	if c.panicMessage != nil {
+		panic(*c.panicMessage)
+	}
+
+	return c.ReturnArguments
 }
 
 type Calls []*Call
@@ -76,3 +83,8 @@ func (c Calls) find(methodName string, arguments ...interface{}) *Call {
 }
 
 var noCallFound = NewCall("-CallNotFound-")
+
+type Method struct {
+	Name   string
+	NumOut int
+}

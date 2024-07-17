@@ -1,6 +1,6 @@
 package double
 
-import "time"
+import "C"
 
 type Stub[T interface{}] struct {
 	predefinedCalls Calls
@@ -31,19 +31,7 @@ func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Argument
 		s.t.FailNow()
 	}
 
-	foundCall.incrementNumberOfCall()
-
-	if foundCall.waitFor != nil {
-		<-foundCall.waitFor
-	} else {
-		time.Sleep(foundCall.waitTime)
-	}
-
-	if foundCall.panicMessage != nil {
-		panic(*foundCall.panicMessage)
-	}
-
-	return foundCall.ReturnArguments
+	return foundCall.called()
 }
 
 func (s *Stub[T]) Test(t TestingT) {
