@@ -1,5 +1,9 @@
 package double
 
+import (
+	"time"
+)
+
 type Call struct {
 	MethodName      string
 	Arguments       Arguments
@@ -7,6 +11,7 @@ type Call struct {
 	times           int
 	callCounter     int
 	panicMessage    *string
+	waitFor         <-chan time.Time
 }
 
 func NewCall(methodName string, arguments ...interface{}) *Call {
@@ -40,6 +45,10 @@ func (c *Call) incrementNumberOfCall() {
 
 func (c *Call) Panic(panicMessage string) {
 	c.panicMessage = &panicMessage
+}
+
+func (c *Call) WaitUntil(w <-chan time.Time) {
+	c.waitFor = w
 }
 
 type Method struct {

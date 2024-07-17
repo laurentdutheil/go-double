@@ -31,6 +31,10 @@ func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Argument
 
 	foundCall.incrementNumberOfCall()
 
+	if foundCall.waitFor != nil {
+		<-foundCall.waitFor
+	}
+
 	if foundCall.panicMessage != nil {
 		panic(*foundCall.panicMessage)
 	}
