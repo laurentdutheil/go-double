@@ -14,35 +14,36 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 		return false
 	}
 
-	for i, argument := range arguments {
-		switch expectedType := a[i].(type) {
+	for i, actual := range arguments {
+		expected := a[i]
+		switch expectedType := expected.(type) {
 		case AnythingOfTypeArgument:
-			if reflect.TypeOf(argument).Name() != string(expectedType) && reflect.TypeOf(argument).String() != string(expectedType) {
+			if reflect.TypeOf(actual).Name() != string(expectedType) && reflect.TypeOf(actual).String() != string(expectedType) {
 				return false
 			}
 		case *IsTypeArgument:
-			actualT := reflect.TypeOf(argument)
+			actualT := reflect.TypeOf(actual)
 			if actualT != expectedType.t {
 				return false
 			}
 		case ArgumentMatcher:
-			matcher := a[i].(ArgumentMatcher)
+			matcher := expected.(ArgumentMatcher)
 			var matches bool
 			func() {
 				defer func() {
 					if r := recover(); r != nil {
 					}
 				}()
-				matches = matcher.Matches(argument)
+				matches = matcher.Matches(actual)
 			}()
 			if !matches {
 				return false
 			}
 		default:
-			if assert.ObjectsAreEqual(a[i], Anything) || assert.ObjectsAreEqual(argument, Anything) {
+			if assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) {
 				continue
 			}
-			if !assert.ObjectsAreEqual(a[i], argument) {
+			if !assert.ObjectsAreEqual(expected, actual) {
 				return false
 			}
 		}
