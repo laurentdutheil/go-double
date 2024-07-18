@@ -7,61 +7,68 @@ import (
 	. "github.com/laurentdutheil/go-double/double"
 )
 
-func TestGetCallingFunctionName_skipStackFramesOnCallerCall(t *testing.T) {
-	beforeMonkeyPatch := RuntimeCallerFunc
-	defer func() { RuntimeCallerFunc = beforeMonkeyPatch }()
-	skipSpy := 0
-	RuntimeCallerFunc = func(skip int) (pc uintptr, file string, line int, ok bool) {
-		skipSpy = skip
-		return 0, "", 0, true
-	}
+func TestGetCallingFunctionName(t *testing.T) {
+	t.Run("Skip specified number of stack frames", func(t *testing.T) {
+		var spiedNumberOfFrames int
 
-	GetCallingFunctionName(3)
+		beforeMonkeyPatch := RuntimeCallerFunc
+		defer func() { RuntimeCallerFunc = beforeMonkeyPatch }()
+		RuntimeCallerFunc = func(skip int) (pc uintptr, file string, line int, ok bool) {
+			spiedNumberOfFrames = skip
+			return 0, "", 0, true
+		}
 
-	assert.Equal(t, 3, skipSpy)
+		specifiedNumberOfFrames := 3
+		GetCallingFunctionName(specifiedNumberOfFrames)
+
+		assert.Equal(t, specifiedNumberOfFrames, spiedNumberOfFrames)
+	})
+
+	t.Run("Panic on runtime.Caller error", func(t *testing.T) {
+		beforeMonkeyPatch := RuntimeCallerFunc
+		defer func() { RuntimeCallerFunc = beforeMonkeyPatch }()
+		RuntimeCallerFunc = func(skip int) (pc uintptr, file string, line int, ok bool) {
+			return 0, "", 0, false
+		}
+
+		assert.PanicsWithValue(t, "Couldn't get the caller information", func() { GetCallingFunctionName(2) })
+	})
+
+	t.Run("Extract function name", func(t *testing.T) {
+		beforeMonkeyPatch := RuntimeFuncForPCNameFunc
+		defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
+		RuntimeFuncForPCNameFunc = func(pc uintptr) string {
+			return "github.com/laurentdutheil/go-double/double_test.(*StubExample).MethodWithReturnArguments"
+		}
+
+		assert.Equal(t, "MethodWithReturnArguments", GetCallingFunctionName(2))
+	})
+
+	t.Run("Extract function name with GCCGO", func(t *testing.T) {
+		beforeMonkeyPatch := RuntimeFuncForPCNameFunc
+		defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
+		RuntimeFuncForPCNameFunc = func(pc uintptr) string {
+			return "github_com_laurentdutheil_go-double_store_double_test.MethodWithReturnArguments.pN39_github_com_laurentdutheil_go-double_store_double_test.StubExample"
+		}
+
+		assert.Equal(t, "MethodWithReturnArguments", GetCallingFunctionName(2))
+	})
 }
 
-func TestGetCallingFunctionName_panicOnCallerError(t *testing.T) {
-	beforeMonkeyPatch := RuntimeCallerFunc
-	defer func() { RuntimeCallerFunc = beforeMonkeyPatch }()
-	RuntimeCallerFunc = func(skip int) (pc uintptr, file string, line int, ok bool) {
-		return 0, "", 0, false
-	}
+func TestGetCallingMethod(t *testing.T) {
+	t.Run("Find method name and number of return arguments", func(t *testing.T) {
+		stubExample := &StubExample{}
+		stubMethodCalled := "MethodWithReturnArguments"
 
-	assert.PanicsWithValue(t, "Couldn't get the caller information", func() { GetCallingFunctionName(2) })
-}
+		beforeMonkeyPatch := RuntimeFuncForPCNameFunc
+		defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
+		RuntimeFuncForPCNameFunc = func(pc uintptr) string {
+			return stubMethodCalled
+		}
 
-func TestGetCallingFunctionName_extractFunctionName(t *testing.T) {
-	beforeMonkeyPatch := RuntimeFuncForPCNameFunc
-	defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
-	RuntimeFuncForPCNameFunc = func(pc uintptr) string {
-		return "github.com/laurentdutheil/go-double/double_test.(*StubExample).MethodWithReturnArguments"
-	}
+		method := GetCallingMethod(stubExample)
 
-	assert.Equal(t, "MethodWithReturnArguments", GetCallingFunctionName(2))
-}
-
-func TestGetCallingFunctionName_extractFunctionNameWithGCCGO(t *testing.T) {
-	beforeMonkeyPatch := RuntimeFuncForPCNameFunc
-	defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
-	RuntimeFuncForPCNameFunc = func(pc uintptr) string {
-		return "github_com_laurentdutheil_go-double_store_double_test.MethodWithReturnArguments.pN39_github_com_laurentdutheil_go-double_store_double_test.StubExample"
-	}
-
-	assert.Equal(t, "MethodWithReturnArguments", GetCallingFunctionName(2))
-}
-
-func TestGetCallingMethod_GetMethodNameAndNumberOfReturnArguments(t *testing.T) {
-	beforeMonkeyPatch := RuntimeFuncForPCNameFunc
-	defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
-	RuntimeFuncForPCNameFunc = func(pc uintptr) string {
-		return "github.com/laurentdutheil/go-double/double_test.(*StubExample).Method"
-	}
-
-	stubExample := &StubExample{}
-
-	method := GetCallingMethod(stubExample)
-
-	assert.Equal(t, "Method", method.Name)
-	assert.Equal(t, 0, method.NumOut)
+		assert.Equal(t, stubMethodCalled, method.Name)
+		assert.Equal(t, 2, method.NumOut)
+	})
 }
