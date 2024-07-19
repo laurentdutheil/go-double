@@ -55,7 +55,7 @@ func TestGetCallingFunctionName(t *testing.T) {
 	})
 }
 
-func TestGetCallingMethod(t *testing.T) {
+func TestGetCallingMethodInformation(t *testing.T) {
 	t.Run("Find method name and number of return arguments", func(t *testing.T) {
 		stubExample := &StubExample{}
 		stubMethodCalled := "MethodWithReturnArguments"
@@ -66,10 +66,10 @@ func TestGetCallingMethod(t *testing.T) {
 			return stubMethodCalled
 		}
 
-		method := GetCallingMethod(stubExample)
+		methodInformation := GetCallingMethodInformation(stubExample)
 
-		assert.Equal(t, stubMethodCalled, method.Name)
-		assert.Equal(t, 2, method.NumOut)
+		assert.Equal(t, stubMethodCalled, methodInformation.Name)
+		assert.Equal(t, 2, methodInformation.NumOut)
 	})
 
 	t.Run("Panic if method is private or if method does not exist", func(t *testing.T) {
@@ -83,7 +83,7 @@ func TestGetCallingMethod(t *testing.T) {
 		}
 
 		assert.PanicsWithValue(t, "Couldn't get the caller method information. 'privateMethod' is private or does not exist.", func() {
-			GetCallingMethod(stubExample)
+			GetCallingMethodInformation(stubExample)
 		})
 	})
 }

@@ -19,15 +19,15 @@ func (s *Stub[T]) Called(arguments ...interface{}) Arguments {
 		panic("Please use double.New constructor to initialize correctly.")
 	}
 
-	method := GetCallingMethod(s.caller)
-	return s.MethodCalled(method, arguments...)
+	methodInformation := GetCallingMethodInformation(s.caller)
+	return s.MethodCalled(methodInformation, arguments...)
 }
 
-func (s *Stub[T]) MethodCalled(method Method, arguments ...interface{}) Arguments {
-	foundCall := s.predefinedCalls.find(method.Name, arguments...)
+func (s *Stub[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+	foundCall := s.predefinedCalls.find(methodInformation.Name, arguments...)
 
-	if foundCall == noCallFound && method.NumOut > 0 {
-		s.t.Errorf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", method.Name)
+	if foundCall == noCallFound && methodInformation.NumOut > 0 {
+		s.t.Errorf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", methodInformation.Name)
 		s.t.FailNow()
 	}
 

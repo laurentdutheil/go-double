@@ -12,15 +12,15 @@ func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
 		panic("Please use double.New constructor to initialize correctly.")
 	}
 
-	method := GetCallingMethod(s.caller)
-	return s.MethodCalled(method, arguments...)
+	methodInformation := GetCallingMethodInformation(s.caller)
+	return s.MethodCalled(methodInformation, arguments...)
 }
 
-func (s *Spy[T]) MethodCalled(method Method, arguments ...interface{}) Arguments {
-	call := NewActualCall(method.Name, arguments...)
+func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+	call := NewActualCall(methodInformation.Name, arguments...)
 	s.ActualCalls = append(s.ActualCalls, call)
 
-	return s.Stub.MethodCalled(method, arguments...)
+	return s.Stub.MethodCalled(methodInformation, arguments...)
 }
 
 func (s *Spy[T]) NumberOfCalls(methodName string) int {
