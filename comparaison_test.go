@@ -16,7 +16,6 @@ type Order struct {
 type Warehouse interface {
 	HasInventory(articleName string, requiredNumberOfItems uint) bool
 	Remove(articleName string, requiredNumberOfItems uint)
-	GetInventory(articleName string) uint
 }
 
 func (o *Order) Fill(w Warehouse) {
@@ -89,11 +88,6 @@ func (w *WarehouseMock) Remove(articleName string, requiredNumberOfItems uint) {
 	w.Called(articleName, requiredNumberOfItems)
 }
 
-func (w *WarehouseMock) GetInventory(articleName string) uint {
-	arguments := w.Called(articleName)
-	return arguments.Get(0).(uint)
-}
-
 func TestComparaison_With_double_Mock(t *testing.T) {
 	t.Run("remove article from inventory if enough stock", func(t *testing.T) {
 		// Arrange
@@ -136,9 +130,4 @@ func (w *WarehouseDoubleMock) HasInventory(articleName string, requiredNumberOfI
 
 func (w *WarehouseDoubleMock) Remove(articleName string, requiredNumberOfItems uint) {
 	w.Called(articleName, requiredNumberOfItems)
-}
-
-func (w *WarehouseDoubleMock) GetInventory(articleName string) uint {
-	arguments := w.Called(articleName)
-	return arguments.Get(0).(uint)
 }
