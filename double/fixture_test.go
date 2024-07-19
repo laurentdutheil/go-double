@@ -21,16 +21,21 @@ func (s *StubExample) MethodWithArguments(aInt int, aString string, aFloat float
 
 func (s *StubExample) MethodWithReturnArguments() (int, error) {
 	arguments := s.Called()
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *StubExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
 	arguments := s.Called(aInt, aString, aFloat)
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *StubExample) MethodWithReferenceArgument(ref *ExampleType) {
 	s.Called(ref)
+}
+
+func (s *StubExample) privateMethod() error {
+	arguments := s.Called()
+	return arguments.Error(0)
 }
 
 type SpyExample struct {
@@ -47,16 +52,21 @@ func (s *SpyExample) MethodWithArguments(aInt int, aString string, aFloat float6
 
 func (s *SpyExample) MethodWithReturnArguments() (int, error) {
 	arguments := s.Called()
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *SpyExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
 	arguments := s.Called(aInt, aString, aFloat)
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *SpyExample) MethodWithReferenceArgument(ref *ExampleType) {
 	s.Called(ref)
+}
+
+func (s *SpyExample) privateMethod() error {
+	arguments := s.Called()
+	return arguments.Error(0)
 }
 
 type MockExample struct {
@@ -77,16 +87,21 @@ func (s *MockExample) MethodWithArguments(aInt int, aString string, aFloat float
 
 func (s *MockExample) MethodWithReturnArguments() (int, error) {
 	arguments := s.Called()
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *MockExample) MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error) {
 	arguments := s.Called(aInt, aString, aFloat)
-	return arguments[0].(int), arguments[1].(error)
+	return arguments.Int(0), arguments.Error(1)
 }
 
 func (s *MockExample) MethodWithReferenceArgument(ref *ExampleType) {
 	s.Called(ref)
+}
+
+func (s *MockExample) privateMethod() error {
+	arguments := s.Called()
+	return arguments.Error(0)
 }
 
 type ExampleType struct {

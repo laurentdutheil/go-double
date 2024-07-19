@@ -71,4 +71,19 @@ func TestGetCallingMethod(t *testing.T) {
 		assert.Equal(t, stubMethodCalled, method.Name)
 		assert.Equal(t, 2, method.NumOut)
 	})
+
+	t.Run("Panic if method is private or if method does not exist", func(t *testing.T) {
+		stubExample := &StubExample{}
+		stubMethodCalled := "privateMethod"
+
+		beforeMonkeyPatch := RuntimeFuncForPCNameFunc
+		defer func() { RuntimeFuncForPCNameFunc = beforeMonkeyPatch }()
+		RuntimeFuncForPCNameFunc = func(pc uintptr) string {
+			return stubMethodCalled
+		}
+
+		assert.PanicsWithValue(t, "Couldn't get the caller method information. 'privateMethod' is private or does not exist.", func() {
+			GetCallingMethod(stubExample)
+		})
+	})
 }

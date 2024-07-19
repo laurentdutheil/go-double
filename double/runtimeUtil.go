@@ -1,6 +1,7 @@
 package double
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"runtime"
@@ -40,7 +41,10 @@ func GetCallingFunctionName(skipFrames int) string {
 func GetCallingMethod(caller interface{}) Method {
 	functionName := GetCallingFunctionName(3)
 	typeOfCaller := reflect.TypeOf(caller)
-	method, _ := typeOfCaller.MethodByName(functionName)
+	method, ok := typeOfCaller.MethodByName(functionName)
+	if !ok {
+		panic(fmt.Sprintf("Couldn't get the caller method information. '%s' is private or does not exist.", functionName))
+	}
 	return Method{functionName, method.Type.NumOut()}
 }
 
