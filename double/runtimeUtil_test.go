@@ -66,13 +66,13 @@ func TestGetCallingMethodInformation(t *testing.T) {
 			return stubMethodCalled
 		}
 
-		methodInformation := GetCallingMethodInformation(stubExample)
+		methodInformation, _ := GetCallingMethodInformation(stubExample)
 
 		assert.Equal(t, stubMethodCalled, methodInformation.Name)
 		assert.Equal(t, 2, methodInformation.NumOut)
 	})
 
-	t.Run("Panic if method is private or if method does not exist", func(t *testing.T) {
+	t.Run("Return an error if method is private or if method does not exist", func(t *testing.T) {
 		stubExample := &StubExample{}
 		stubMethodCalled := "privateMethod"
 
@@ -82,8 +82,9 @@ func TestGetCallingMethodInformation(t *testing.T) {
 			return stubMethodCalled
 		}
 
-		assert.PanicsWithValue(t, "Couldn't get the caller method information. 'privateMethod' is private or does not exist.", func() {
-			GetCallingMethodInformation(stubExample)
-		})
+		_, err := GetCallingMethodInformation(stubExample)
+
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "couldn't get the caller method information. 'privateMethod' is private or does not exist")
 	})
 }

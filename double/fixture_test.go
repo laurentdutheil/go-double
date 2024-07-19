@@ -38,6 +38,15 @@ func (s *StubExample) privateMethod() error {
 	return arguments.Error(0)
 }
 
+func (s *StubExample) privateMethodWithMethodCalled(aInt int) error {
+	methodInformation := MethodInformation{
+		Name:   "privateMethodWithMethodCalled",
+		NumOut: 1,
+	}
+	arguments := s.MethodCalled(methodInformation, aInt)
+	return arguments.Error(0)
+}
+
 type SpyExample struct {
 	Spy[SpyExample]
 }
@@ -66,6 +75,15 @@ func (s *SpyExample) MethodWithReferenceArgument(ref *ExampleType) {
 
 func (s *SpyExample) privateMethod() error {
 	arguments := s.Called()
+	return arguments.Error(0)
+}
+
+func (s *SpyExample) privateMethodWithMethodCalled(aInt int) error {
+	methodInformation := MethodInformation{
+		Name:   "privateMethodWithMethodCalled",
+		NumOut: 1,
+	}
+	arguments := s.MethodCalled(methodInformation, aInt)
 	return arguments.Error(0)
 }
 
@@ -101,6 +119,15 @@ func (s *MockExample) MethodWithReferenceArgument(ref *ExampleType) {
 
 func (s *MockExample) privateMethod() error {
 	arguments := s.Called()
+	return arguments.Error(0)
+}
+
+func (s *MockExample) privateMethodWithMethodCalled(aInt int) error {
+	methodInformation := MethodInformation{
+		Name:   "privateMethodWithMethodCalled",
+		NumOut: 1,
+	}
+	arguments := s.MethodCalled(methodInformation, aInt)
 	return arguments.Error(0)
 }
 

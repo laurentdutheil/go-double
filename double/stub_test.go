@@ -49,6 +49,45 @@ func TestStub_Called(t *testing.T) {
 		expectedMessage := "Please use double.New constructor to initialize correctly."
 		assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
 	})
+
+	t.Run("FailNow when private method is used with Called", func(t *testing.T) {
+		st := &SpiedTestingT{}
+		stub := New[StubExample](st)
+		stub.On("privateMethod").Return(nil)
+
+		st.AssertFailNowWasCalled(t, func() {
+			_ = stub.privateMethod()
+		})
+
+		assert.Equal(t, "couldn't get the caller method information. 'privateMethod' is private or does not exist\n\tUse MethodCalled instead of Called in stub implementation.", st.errorfFormat)
+	})
+}
+
+func TestStub_MethodCalled(t *testing.T) {
+	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
+		stub := &StubExample{}
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { _ = stub.privateMethodWithMethodCalled(1) })
+	})
+
+	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
+		stub := New[StubExample](nil)
+
+		expectedMessage := "Please use double.New constructor to initialize correctly."
+		assert.PanicsWithValue(t, expectedMessage, func() { _ = stub.privateMethodWithMethodCalled(1) })
+	})
+
+	t.Run("Use MethodCalled on private method", func(t *testing.T) {
+		tt := new(testing.T)
+		stub := New[StubExample](tt)
+		expectedErr := fmt.Errorf("stubbed error")
+		stub.On("privateMethodWithMethodCalled", 1).Return(expectedErr)
+
+		err := stub.privateMethodWithMethodCalled(1)
+
+		assert.Equal(t, expectedErr, err)
+	})
 }
 
 func TestStub_On_Return(t *testing.T) {

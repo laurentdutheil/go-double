@@ -1,7 +1,5 @@
 package double
 
-import "C"
-
 type Stub[T interface{}] struct {
 	predefinedCalls Calls
 	t               TestingT
@@ -19,11 +17,20 @@ func (s *Stub[T]) Called(arguments ...interface{}) Arguments {
 		panic("Please use double.New constructor to initialize correctly.")
 	}
 
-	methodInformation := GetCallingMethodInformation(s.caller)
-	return s.MethodCalled(methodInformation, arguments...)
+	methodInformation, err := GetCallingMethodInformation(s.caller)
+	if err != nil {
+		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
+		s.t.FailNow()
+	}
+
+	return s.MethodCalled(*methodInformation, arguments...)
 }
 
 func (s *Stub[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+	if s.t == nil {
+		panic("Please use double.New constructor to initialize correctly.")
+	}
+
 	foundCall := s.predefinedCalls.find(methodInformation.Name, arguments...)
 
 	if foundCall == noCallFound && methodInformation.NumOut > 0 {

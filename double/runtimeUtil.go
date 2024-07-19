@@ -38,14 +38,14 @@ func GetCallingFunctionName(skipFrames int) string {
 	return parts[len(parts)-1]
 }
 
-func GetCallingMethodInformation(caller interface{}) MethodInformation {
+func GetCallingMethodInformation(caller interface{}) (*MethodInformation, error) {
 	functionName := GetCallingFunctionName(3)
 	typeOfCaller := reflect.TypeOf(caller)
 	method, ok := typeOfCaller.MethodByName(functionName)
 	if !ok {
-		panic(fmt.Sprintf("Couldn't get the caller method information. '%s' is private or does not exist.", functionName))
+		return nil, fmt.Errorf("couldn't get the caller method information. '%s' is private or does not exist", functionName)
 	}
-	return MethodInformation{functionName, method.Type.NumOut()}
+	return &MethodInformation{functionName, method.Type.NumOut()}, nil
 }
 
 type MethodInformation struct {
