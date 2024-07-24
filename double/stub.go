@@ -13,16 +13,7 @@ func (s *Stub[T]) On(methodName string, arguments ...interface{}) *Call {
 }
 
 func (s *Stub[T]) Called(arguments ...interface{}) Arguments {
-	if s.t == nil {
-		panic("Please use double.New constructor to initialize correctly.")
-	}
-
-	methodInformation, err := GetCallingMethodInformation(s.caller)
-	if err != nil {
-		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
-		s.t.FailNow()
-	}
-
+	methodInformation := s.getMethodInformation()
 	return s.MethodCalled(*methodInformation, arguments...)
 }
 
@@ -47,4 +38,17 @@ func (s *Stub[T]) Test(t TestingT) {
 
 func (s *Stub[T]) PredefinedCalls() []*Call {
 	return s.predefinedCalls
+}
+
+func (s *Stub[T]) getMethodInformation() *MethodInformation {
+	if s.t == nil {
+		panic("Please use double.New constructor to initialize correctly.")
+	}
+
+	methodInformation, err := GetCallingMethodInformation(s.caller)
+	if err != nil {
+		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
+		s.t.FailNow()
+	}
+	return methodInformation
 }

@@ -8,16 +8,7 @@ type Spy[T interface{}] struct {
 }
 
 func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
-	if s.t == nil {
-		panic("Please use double.New constructor to initialize correctly.")
-	}
-
-	methodInformation, err := GetCallingMethodInformation(s.caller)
-	if err != nil {
-		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
-		s.t.FailNow()
-	}
-
+	methodInformation := s.getMethodInformation()
 	return s.MethodCalled(*methodInformation, arguments...)
 }
 

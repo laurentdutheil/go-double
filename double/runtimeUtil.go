@@ -39,7 +39,7 @@ func GetCallingFunctionName(skipFrames int) string {
 }
 
 func GetCallingMethodInformation(caller interface{}) (*MethodInformation, error) {
-	functionName := GetCallingFunctionName(3)
+	functionName := GetCallingFunctionName(4)
 	typeOfCaller := reflect.TypeOf(caller)
 	method, ok := typeOfCaller.MethodByName(functionName)
 	if !ok {

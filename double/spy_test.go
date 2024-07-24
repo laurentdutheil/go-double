@@ -81,6 +81,19 @@ func TestSpy_MethodCalled(t *testing.T) {
 
 		assert.Equal(t, expectedErr, err)
 	})
+
+	t.Run("Register actual call on private method", func(t *testing.T) {
+		tt := new(testing.T)
+		spy := New[SpyExample](tt)
+		expectedErr := fmt.Errorf("stubbed error")
+		spy.On("privateMethodWithMethodCalled", 1).Return(expectedErr)
+
+		err := spy.privateMethodWithMethodCalled(1)
+
+		assert.Equal(t, expectedErr, err)
+		assert.Len(t, spy.ActualCalls, 1)
+		assert.Equal(t, NewActualCall("privateMethodWithMethodCalled", 1), spy.ActualCalls[0])
+	})
 }
 
 func TestSpy_NumberOfCalls(t *testing.T) {
