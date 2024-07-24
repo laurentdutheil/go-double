@@ -19,6 +19,12 @@ func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...
 	return s.Stub.MethodCalled(methodInformation, arguments...)
 }
 
+func (s *Spy[T]) AddActualCall(arguments ...interface{}) {
+	functionName := GetCallingFunctionName(2)
+	call := NewActualCall(functionName, arguments...)
+	s.ActualCalls = append(s.ActualCalls, call)
+}
+
 func (s *Spy[T]) NumberOfCalls(methodName string) int {
 	count := 0
 	for _, call := range s.ActualCalls {

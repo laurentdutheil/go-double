@@ -17,7 +17,7 @@ func TestSpy_Called(t *testing.T) {
 	})
 
 	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
-		spy := New[StubExample](nil)
+		spy := New[SpyExample](nil)
 
 		expectedMessage := "Please use double.New constructor to initialize correctly."
 		assert.PanicsWithValue(t, expectedMessage, func() { spy.Method() })
@@ -25,11 +25,11 @@ func TestSpy_Called(t *testing.T) {
 
 	t.Run("FailNow when private method is used with Called", func(t *testing.T) {
 		st := &SpiedTestingT{}
-		stub := New[SpyExample](st)
-		stub.On("privateMethod").Return(nil)
+		spy := New[SpyExample](st)
+		spy.On("privateMethod").Return(nil)
 
 		st.AssertFailNowWasCalled(t, func() {
-			_ = stub.privateMethod()
+			_ = spy.privateMethod()
 		})
 
 		assert.Equal(t, "couldn't get the caller method information. 'privateMethod' is private or does not exist\n\tUse MethodCalled instead of Called in stub implementation.", st.errorfFormat)
@@ -58,26 +58,26 @@ func TestSpy_Called(t *testing.T) {
 
 func TestSpy_MethodCalled(t *testing.T) {
 	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
-		stub := &SpyExample{}
+		spy := &SpyExample{}
 
 		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { _ = stub.privateMethodWithMethodCalled(1) })
+		assert.PanicsWithValue(t, expectedMessage, func() { _ = spy.privateMethodWithMethodCalled(1) })
 	})
 
 	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
-		stub := New[SpyExample](nil)
+		spy := New[SpyExample](nil)
 
 		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { _ = stub.privateMethodWithMethodCalled(1) })
+		assert.PanicsWithValue(t, expectedMessage, func() { _ = spy.privateMethodWithMethodCalled(1) })
 	})
 
 	t.Run("Use MethodCalled on private method", func(t *testing.T) {
 		tt := new(testing.T)
-		stub := New[SpyExample](tt)
+		spy := New[SpyExample](tt)
 		expectedErr := fmt.Errorf("stubbed error")
-		stub.On("privateMethodWithMethodCalled", 1).Return(expectedErr)
+		spy.On("privateMethodWithMethodCalled", 1).Return(expectedErr)
 
-		err := stub.privateMethodWithMethodCalled(1)
+		err := spy.privateMethodWithMethodCalled(1)
 
 		assert.Equal(t, expectedErr, err)
 	})
@@ -93,6 +93,19 @@ func TestSpy_MethodCalled(t *testing.T) {
 		assert.Equal(t, expectedErr, err)
 		assert.Len(t, spy.ActualCalls, 1)
 		assert.Equal(t, NewActualCall("privateMethodWithMethodCalled", 1), spy.ActualCalls[0])
+	})
+}
+
+func TestSpy_AddActualCall(t *testing.T) {
+	t.Run("Register actual call", func(t *testing.T) {
+		tt := new(testing.T)
+		spy := New[SpyExample](tt)
+
+		result := spy.methodOnlyAddActualCall(1)
+
+		assert.Equal(t, 123, result)
+		assert.Len(t, spy.ActualCalls, 1)
+		assert.Equal(t, NewActualCall("methodOnlyAddActualCall", 1), spy.ActualCalls[0])
 	})
 }
 

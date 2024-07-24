@@ -87,6 +87,11 @@ func (s *SpyExample) privateMethodWithMethodCalled(aInt int) error {
 	return arguments.Error(0)
 }
 
+func (s *SpyExample) methodOnlyAddActualCall(aInt int) int {
+	s.AddActualCall(aInt)
+	return 123
+}
+
 type MockExample struct {
 	Mock[MockExample]
 }
