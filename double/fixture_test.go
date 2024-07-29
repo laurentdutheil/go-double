@@ -168,3 +168,34 @@ func (s *SpiedTestingT) AssertFailNowWasCalled(t *testing.T, f func()) {
 
 // Check if SpiedTestingT implements all methods of TestingT
 var _ TestingT = (*SpiedTestingT)(nil)
+
+type InterfaceExample interface {
+	Method()
+	MethodWithArguments(aInt int, aString string, aFloat float64)
+	MethodWithReturnArguments() (int, error)
+	MethodWithArgumentsAndReturnArguments(aInt int, aString string, aFloat float64) (int, error)
+	MethodWithReferenceArgument(ref *ExampleType)
+	privateMethod() error
+	privateMethodWithMethodCalled(aInt int) error
+}
+
+// Check if StubExample implements all methods of InterfaceExample
+var _ InterfaceExample = (*StubExample)(nil)
+
+// Check if SpyExample implements all methods of InterfaceExample
+var _ InterfaceExample = (*SpyExample)(nil)
+
+// Check if MockExample implements all methods of InterfaceExample
+var _ InterfaceExample = (*MockExample)(nil)
+
+type IStub interface {
+	On(methodName string, arguments ...interface{}) *Call
+	Called(arguments ...interface{}) Arguments
+	MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments
+	PredefinedCalls() []*Call
+}
+
+type InterfaceTestStub interface {
+	InterfaceExample
+	IStub
+}

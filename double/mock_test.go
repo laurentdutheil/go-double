@@ -7,22 +7,6 @@ import (
 	. "github.com/laurentdutheil/go-double/double"
 )
 
-func TestMock_Called(t *testing.T) {
-	t.Run("Panic if do not use the New constructor method", func(t *testing.T) {
-		mock := &MockExample{}
-
-		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { mock.Method() })
-	})
-
-	t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
-		mock := New[StubExample](nil)
-
-		expectedMessage := "Please use double.New constructor to initialize correctly."
-		assert.PanicsWithValue(t, expectedMessage, func() { mock.Method() })
-	})
-}
-
 func TestMock_AssertNumberOfCalls(t *testing.T) {
 
 	t.Run("t.Helper is called", func(t *testing.T) {
