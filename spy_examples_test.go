@@ -38,17 +38,33 @@ func (g *Game) Play() {
 	In test file
 */
 
-func TestSpyAsAStub(t *testing.T) {
-	spy := double.New[SpyAsStub](t)
-	game := Game{position: 12, dice: spy}
-	spy.On("Roll").Return(4)
+func TestExample_Spy(t *testing.T) {
+	t.Run("as a Stub", func(t *testing.T) {
+		spy := double.New[SpyAsStub](t)
+		game := Game{position: 12, dice: spy}
+		spy.On("Roll").Return(4)
 
-	game.Play()
+		game.Play()
 
-	// check the state
-	assert.Equal(t, 16, game.Position())
-	// and/or check the call
-	assert.Equal(t, 1, spy.NumberOfCalls("Roll"))
+		// check the state
+		assert.Equal(t, 16, game.Position())
+		// and/or check the call
+		assert.Equal(t, 1, spy.NumberOfCalls("Roll"))
+	})
+
+	t.Run("as a spy of the real implementation", func(t *testing.T) {
+		spy := double.New[SpyRealDice](t)
+		spy.spied = SixDie{}
+		game := Game{position: 12, dice: spy}
+
+		game.Play()
+
+		// check that it is a six die
+		assert.GreaterOrEqual(t, game.Position(), 12+1)
+		assert.LessOrEqual(t, game.Position(), 12+6)
+		// and/or check the call
+		assert.Equal(t, 1, spy.NumberOfCalls("Roll"))
+	})
 }
 
 type SpyAsStub struct {
@@ -58,20 +74,6 @@ type SpyAsStub struct {
 func (s *SpyAsStub) Roll() int {
 	arguments := s.Called()
 	return arguments.Int(0)
-}
-
-func TestSpyAsWithRealDice(t *testing.T) {
-	spy := double.New[SpyRealDice](t)
-	spy.spied = SixDie{}
-	game := Game{position: 12, dice: spy}
-
-	game.Play()
-
-	// check that it is a six die
-	assert.GreaterOrEqual(t, game.Position(), 12+1)
-	assert.LessOrEqual(t, game.Position(), 12+6)
-	// and/or check the call
-	assert.Equal(t, 1, spy.NumberOfCalls("Roll"))
 }
 
 type SpyRealDice struct {

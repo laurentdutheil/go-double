@@ -42,7 +42,7 @@ func (m *MyStubObject) DoSomething(number int) (int, error) {
 	return args.Int(0), args.Error(1)
 }
 
-func TestStub(t *testing.T) {
+func TestExample_Stub(t *testing.T) {
 	stub := double.New[MyStubObject](t)
 	stub.On("DoSomething", 3).Return(4, nil)
 	// the next line is not called but does not fail the test
