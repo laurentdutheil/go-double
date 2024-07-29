@@ -24,7 +24,7 @@ func (m *Mock[T]) AssertCalled(t TestingT, methodName string, arguments ...inter
 	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)
 	if numberOfCalls == 0 {
 		var calledWithArgs []string
-		for _, call := range m.ActualCalls {
+		for _, call := range m.ActualCalls() {
 			if call.MethodName == methodName {
 				calledWithArgs = append(calledWithArgs, fmt.Sprintf("%v", call.Arguments))
 			}

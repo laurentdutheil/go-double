@@ -136,6 +136,11 @@ func (s *MockExample) privateMethodWithMethodCalled(aInt int) error {
 	return arguments.Error(0)
 }
 
+func (s *MockExample) methodOnlyAddActualCall(aInt int) int {
+	s.AddActualCall(aInt)
+	return 123
+}
+
 type ExampleType struct {
 	ran bool
 }
@@ -169,7 +174,7 @@ func (s *SpiedTestingT) AssertFailNowWasCalled(t *testing.T, f func()) {
 // Check if SpiedTestingT implements all methods of TestingT
 var _ TestingT = (*SpiedTestingT)(nil)
 
-type InterfaceExample interface {
+type InterfaceStubExample interface {
 	Method()
 	MethodWithArguments(aInt int, aString string, aFloat float64)
 	MethodWithReturnArguments() (int, error)
@@ -179,14 +184,14 @@ type InterfaceExample interface {
 	privateMethodWithMethodCalled(aInt int) error
 }
 
-// Check if StubExample implements all methods of InterfaceExample
-var _ InterfaceExample = (*StubExample)(nil)
+// Check if StubExample implements all methods of InterfaceStubExample
+var _ InterfaceStubExample = (*StubExample)(nil)
 
-// Check if SpyExample implements all methods of InterfaceExample
-var _ InterfaceExample = (*SpyExample)(nil)
+// Check if SpyExample implements all methods of InterfaceStubExample
+var _ InterfaceStubExample = (*SpyExample)(nil)
 
-// Check if MockExample implements all methods of InterfaceExample
-var _ InterfaceExample = (*MockExample)(nil)
+// Check if MockExample implements all methods of InterfaceStubExample
+var _ InterfaceStubExample = (*MockExample)(nil)
 
 type IStub interface {
 	On(methodName string, arguments ...interface{}) *Call
@@ -196,6 +201,24 @@ type IStub interface {
 }
 
 type InterfaceTestStub interface {
-	InterfaceExample
+	InterfaceStubExample
 	IStub
+}
+
+type InterfaceSpyExample interface {
+	InterfaceStubExample
+	methodOnlyAddActualCall(aInt int) int
+}
+
+type ISpy interface {
+	IStub
+	AddActualCall(arguments ...interface{})
+	NumberOfCalls(methodName string) int
+	NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int
+	ActualCalls() []ActualCall
+}
+
+type InterfaceTestSpy interface {
+	InterfaceSpyExample
+	ISpy
 }

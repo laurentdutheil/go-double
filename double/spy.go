@@ -4,7 +4,7 @@ import "reflect"
 
 type Spy[T interface{}] struct {
 	Stub[T]
-	ActualCalls []ActualCall
+	actualCalls []ActualCall
 }
 
 func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
@@ -14,7 +14,7 @@ func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
 
 func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
 	call := NewActualCall(methodInformation.Name, arguments...)
-	s.ActualCalls = append(s.ActualCalls, call)
+	s.actualCalls = append(s.actualCalls, call)
 
 	return s.Stub.MethodCalled(methodInformation, arguments...)
 }
@@ -22,12 +22,12 @@ func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...
 func (s *Spy[T]) AddActualCall(arguments ...interface{}) {
 	functionName := GetCallingFunctionName(2)
 	call := NewActualCall(functionName, arguments...)
-	s.ActualCalls = append(s.ActualCalls, call)
+	s.actualCalls = append(s.actualCalls, call)
 }
 
 func (s *Spy[T]) NumberOfCalls(methodName string) int {
 	count := 0
-	for _, call := range s.ActualCalls {
+	for _, call := range s.actualCalls {
 		if call.MethodName == methodName {
 			count++
 		}
@@ -37,12 +37,16 @@ func (s *Spy[T]) NumberOfCalls(methodName string) int {
 
 func (s *Spy[T]) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	count := 0
-	for _, call := range s.ActualCalls {
+	for _, call := range s.actualCalls {
 		if call.isEqual(methodName, arguments) {
 			count++
 		}
 	}
 	return count
+}
+
+func (s *Spy[T]) ActualCalls() []ActualCall {
+	return s.actualCalls
 }
 
 type ActualCall struct {
