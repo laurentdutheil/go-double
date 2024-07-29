@@ -77,7 +77,9 @@ func TestSpy(t *testing.T) {
 					tt := new(testing.T)
 					spy := test.constructor(tt)
 
-					assert.Equal(t, 0, spy.NumberOfCalls("Method"))
+					numberOfCalls := spy.NumberOfCalls("Method")
+
+					assert.Equal(t, 0, numberOfCalls)
 				})
 
 				t.Run("Several calls", func(t *testing.T) {
@@ -87,7 +89,21 @@ func TestSpy(t *testing.T) {
 					spy.Method()
 					spy.Method()
 
-					assert.Equal(t, 2, spy.NumberOfCalls("Method"))
+					numberOfCalls := spy.NumberOfCalls("Method")
+
+					assert.Equal(t, 2, numberOfCalls)
+				})
+
+				t.Run("Several calls with different arguments", func(t *testing.T) {
+					tt := new(testing.T)
+					spy := test.constructor(tt)
+
+					spy.MethodWithArguments(1, "1", 1.2)
+					spy.MethodWithArguments(2, "2", 2.2)
+
+					numberOfCalls := spy.NumberOfCalls("MethodWithArguments")
+
+					assert.Equal(t, 2, numberOfCalls)
 				})
 			})
 
@@ -96,7 +112,9 @@ func TestSpy(t *testing.T) {
 					tt := new(testing.T)
 					spy := test.constructor(tt)
 
-					assert.Equal(t, 0, spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0))
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0)
+
+					assert.Equal(t, 0, numberOfCalls)
 				})
 
 				t.Run("Several calls", func(t *testing.T) {
@@ -105,9 +123,11 @@ func TestSpy(t *testing.T) {
 
 					spy.MethodWithArguments(1, "2", 3.0)
 					spy.MethodWithArguments(1, "2", 3.0)
-					spy.MethodWithArguments(1, "2", 3.0)
+					spy.MethodWithArguments(2, "3", 4.5)
 
-					assert.Equal(t, 3, spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0))
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0)
+
+					assert.Equal(t, 2, numberOfCalls)
 				})
 
 				t.Run("One call with wrong arguments", func(t *testing.T) {
@@ -116,7 +136,9 @@ func TestSpy(t *testing.T) {
 
 					spy.MethodWithArguments(0, "2", 3.0)
 
-					assert.Equal(t, 0, spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0))
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", 1, "2", 3.0)
+
+					assert.Equal(t, 0, numberOfCalls)
 				})
 
 				t.Run("One call with wrong number of arguments", func(t *testing.T) {
@@ -125,7 +147,35 @@ func TestSpy(t *testing.T) {
 
 					spy.MethodWithArguments(0, "2", 3.0)
 
-					assert.Equal(t, 0, spy.NumberOfCallsWithArguments("MethodWithArguments", 1))
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", 1)
+
+					assert.Equal(t, 0, numberOfCalls)
+				})
+
+				t.Run("Several calls with Anything", func(t *testing.T) {
+					tt := new(testing.T)
+					spy := test.constructor(tt)
+
+					spy.MethodWithArguments(1, "2", 3.0)
+					spy.MethodWithArguments(2, "2", 3.0)
+					spy.MethodWithArguments(3, "2", 3.0)
+
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", Anything, "2", 3.0)
+
+					assert.Equal(t, 3, numberOfCalls)
+				})
+
+				t.Run("Several calls with AnythingOfType", func(t *testing.T) {
+					tt := new(testing.T)
+					spy := test.constructor(tt)
+
+					spy.MethodWithArguments(1, "2", 3.0)
+					spy.MethodWithArguments(2, "2", 3.0)
+					spy.MethodWithArguments(3, "2", 3.0)
+
+					numberOfCalls := spy.NumberOfCallsWithArguments("MethodWithArguments", AnythingOfType("int"), "2", 3.0)
+
+					assert.Equal(t, 3, numberOfCalls)
 				})
 			})
 		})

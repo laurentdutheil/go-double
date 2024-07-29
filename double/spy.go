@@ -1,7 +1,5 @@
 package double
 
-import "reflect"
-
 type Spy[T interface{}] struct {
 	Stub[T]
 	actualCalls []ActualCall
@@ -58,17 +56,13 @@ func NewActualCall(methodName string, arguments ...interface{}) ActualCall {
 	return ActualCall{MethodName: methodName, Arguments: arguments}
 }
 
-func (a ActualCall) isEqual(methodName string, arguments []interface{}) bool {
+func (a ActualCall) isEqual(methodName string, arguments Arguments) bool {
 	if a.MethodName != methodName {
 		return false
 	}
 	if len(a.Arguments) != len(arguments) {
 		return false
 	}
-	for i, v := range a.Arguments {
-		if !reflect.DeepEqual(arguments[i], v) {
-			return false
-		}
-	}
-	return true
+
+	return arguments.Matches(a.Arguments...)
 }
