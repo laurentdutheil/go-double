@@ -6,6 +6,20 @@ Library that distincts stubs, spies and mocks that depends on [Testify](https://
 
 POC to prepare a possible Pull Request on [Testify](https://github.com/stretchr/testify)
 
+The purpose is to be as retro-compatible as possible
+
+### TODO
+
+- [ ] TestData
+- [ ] FindClosest
+- [ ] FuntionalOptionsArguments (don't understand the behaviour and the implementation => need help)
+- [ ] NotBefore
+- [x] Maybe => NOT DO use Stub instead
+- [x] Unset => NOT DO use Stub instead
+- [ ] standardize error message
+- [ ] Mutex
+- [ ] Comments for documentation
+
 ## Why
 
 If we refer to a definition of [test doubles](https://martinfowler.com/bliki/TestDouble.html), there is an interest in distinguishing stubs, spies and mocks.
