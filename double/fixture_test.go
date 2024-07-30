@@ -147,17 +147,13 @@ type ExampleType struct {
 }
 
 type SpiedTestingT struct {
-	ErrorMessages []string
-	errorfFormat  string
-	errorfArgs    []interface{}
+	errorMessages []string
 	helperCalled  bool
 	failNowCalled bool
 }
 
 func (s *SpiedTestingT) Errorf(format string, args ...interface{}) {
-	s.errorfFormat = format
-	s.errorfArgs = args
-	s.ErrorMessages = append(s.ErrorMessages, fmt.Sprintf(format, args...))
+	s.errorMessages = append(s.errorMessages, fmt.Sprintf(format, args...))
 }
 
 func (s *SpiedTestingT) Helper() {

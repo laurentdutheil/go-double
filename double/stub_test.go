@@ -63,7 +63,7 @@ func TestStub(t *testing.T) {
 						_ = stub.privateMethod()
 					})
 
-					assert.Equal(t, "couldn't get the caller method information. 'privateMethod' is private or does not exist\n\tUse MethodCalled instead of Called in stub implementation.", st.errorfFormat)
+					assert.Equal(t, "couldn't get the caller method information. 'privateMethod' is private or does not exist\n\tUse MethodCalled instead of Called in stub implementation.", st.errorMessages[0])
 				})
 			})
 
@@ -124,9 +124,7 @@ func TestStub(t *testing.T) {
 					st.AssertFailNowWasCalled(t, func() {
 						_, _ = stub.MethodWithArgumentsAndReturnArguments(12, "", 1.0)
 					})
-					assert.Equal(t, "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", st.errorfFormat)
-					errorMethodeName := st.errorfArgs[0]
-					assert.Equal(t, errorMethodeName, "MethodWithArgumentsAndReturnArguments")
+					assert.Equal(t, "I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"MethodWithArgumentsAndReturnArguments\").Return(...) first", st.errorMessages[0])
 				})
 
 				t.Run("Don't panic when method have no return arguments. Even if there is no predefined call", func(t *testing.T) {

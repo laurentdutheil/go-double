@@ -45,10 +45,8 @@ func TestMock(t *testing.T) {
 
 			mock.AssertNumberOfCalls(st, "Method", 2)
 
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Expected number of calls (2) does not match the actual number of calls (1).")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Expected number of calls (2) does not match the actual number of calls (1).")
 		})
 	})
 
@@ -87,13 +85,8 @@ func TestMock(t *testing.T) {
 
 			mock.AssertCalled(st, "Method")
 
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Should have called with given arguments")
-			assert.Contains(t, errorMessage, "Expected \"Method\" to have been called with:")
-			assert.Contains(t, errorMessage, "[]")
-			assert.Contains(t, errorMessage, "but no actual calls happened")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"Method\" to have been called with:\n\t            \t[]\n\t            \tbut no actual calls happened\n")
 		})
 
 		t.Run("Return true when method is called with right arguments", func(t *testing.T) {
@@ -125,16 +118,8 @@ func TestMock(t *testing.T) {
 
 			mock.AssertCalled(st, "MethodWithArguments", 1, "1", 1.0)
 
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Should have called with given arguments")
-			assert.Contains(t, errorMessage, "Expected \"MethodWithArguments\" to have been called with:")
-			assert.Contains(t, errorMessage, "[1 1 1]")
-			assert.Contains(t, errorMessage, "but actual calls were:")
-			assert.Contains(t, errorMessage, "[2 1 1]")
-			assert.Contains(t, errorMessage, "[1 3 1.2]")
-			assert.NotContains(t, errorMessage, "[4]")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArguments\" to have been called with:\n\t            \t[1 1 1]\n\t            \tbut actual calls were:\n\t            \t        [2 1 1]\n\t            \t[1 3 1.2]\n")
 		})
 	})
 
@@ -174,13 +159,8 @@ func TestMock(t *testing.T) {
 
 			mock.AssertNotCalled(st, "Method")
 
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Should not have called with given arguments")
-			assert.Contains(t, errorMessage, "Expected \"Method\" to not have been called with:")
-			assert.Contains(t, errorMessage, "[]")
-			assert.Contains(t, errorMessage, "but actually it was.")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should not have called with given arguments\n\tMessages:   \tExpected \"Method\" to not have been called with:\n\t            \t[]\n\t            \tbut actually it was.\n")
 		})
 
 		t.Run("Return true when method is called with other arguments", func(t *testing.T) {
@@ -210,13 +190,8 @@ func TestMock(t *testing.T) {
 
 			mock.AssertNotCalled(st, "MethodWithArguments", 1, "3", 1.2)
 
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Should not have called with given arguments")
-			assert.Contains(t, errorMessage, "Expected \"MethodWithArguments\" to not have been called with:")
-			assert.Contains(t, errorMessage, "[1 3 1.2]")
-			assert.Contains(t, errorMessage, "but actually it was.")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should not have called with given arguments\n\tMessages:   \tExpected \"MethodWithArguments\" to not have been called with:\n\t            \t[1 3 1.2]\n\t            \tbut actually it was.\n")
 		})
 	})
 
@@ -247,13 +222,8 @@ func TestMock(t *testing.T) {
 			result := mock.AssertExpectations(st)
 
 			assert.False(t, result)
-			assert.Equal(t, "\n%s", st.errorfFormat)
-			errorMessage := st.errorfArgs[0]
-			assert.Contains(t, errorMessage, "Error Trace:")
-			assert.Contains(t, errorMessage, "Should have called with given arguments")
-			assert.Contains(t, errorMessage, "Expected \"MethodWithReturnArguments\" to have been called with:")
-			assert.Contains(t, errorMessage, "[]")
-			assert.Contains(t, errorMessage, "but no actual calls happened")
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithReturnArguments\" to have been called with:\n\t            \t[]\n\t            \tbut no actual calls happened\n")
 		})
 
 		t.Run("Return true when one expectation is called", func(t *testing.T) {
@@ -276,9 +246,9 @@ func TestMock(t *testing.T) {
 			result := mock.AssertExpectations(st)
 
 			assert.False(t, result)
-			assert.Len(t, st.ErrorMessages, 2)
-			assert.Contains(t, st.ErrorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithReturnArguments\" to have been called with:\n\t            \t[]\n\t            \tbut no actual calls happened\n")
-			assert.Contains(t, st.ErrorMessages[1], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArgumentsAndReturnArguments\" to have been called with:\n\t            \t[123 123 123]\n\t            \tbut no actual calls happened\n")
+			assert.Len(t, st.errorMessages, 2)
+			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithReturnArguments\" to have been called with:\n\t            \t[]\n\t            \tbut no actual calls happened\n")
+			assert.Contains(t, st.errorMessages[1], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArgumentsAndReturnArguments\" to have been called with:\n\t            \t[123 123 123]\n\t            \tbut no actual calls happened\n")
 		})
 
 		t.Run("Return false when expectation are not called enough times", func(t *testing.T) {
