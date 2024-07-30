@@ -25,32 +25,37 @@ func (c *Call) Return(arguments ...interface{}) *Call {
 	return c
 }
 
-func (c *Call) Once() {
-	c.times = 1
+func (c *Call) Once() *Call {
+	return c.Times(1)
 }
 
-func (c *Call) Twice() {
-	c.times = 2
+func (c *Call) Twice() *Call {
+	return c.Times(2)
 }
 
-func (c *Call) Times(i int) {
+func (c *Call) Times(i int) *Call {
 	c.times = i
+	return c
 }
 
-func (c *Call) Panic(panicMessage string) {
+func (c *Call) Panic(panicMessage string) *Call {
 	c.panicMessage = &panicMessage
+	return c
 }
 
-func (c *Call) WaitUntil(w <-chan time.Time) {
+func (c *Call) WaitUntil(w <-chan time.Time) *Call {
 	c.waitFor = w
+	return c
 }
 
-func (c *Call) After(duration time.Duration) {
+func (c *Call) After(duration time.Duration) *Call {
 	c.waitTime = duration
+	return c
 }
 
-func (c *Call) Run(fn func(Arguments)) {
+func (c *Call) Run(fn func(Arguments)) *Call {
 	c.runFn = fn
+	return c
 }
 
 func (c *Call) canBeCalled() bool {
