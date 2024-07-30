@@ -18,6 +18,14 @@ func (m *Mock[T]) AssertNumberOfCalls(t TestingT, methodName string, expectedCal
 	return assert.Equal(t, expectedCalls, numberOfCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, numberOfCalls))
 }
 
+func (m *Mock[T]) AssertNumberOfCallsWithArguments(t TestingT, expectedCalls int, methodName string, arguments ...interface{}) bool {
+	t.Helper()
+
+	numberOfCalls := m.NumberOfCallsWithArguments(methodName, arguments...)
+
+	return assert.Equal(t, expectedCalls, numberOfCalls, fmt.Sprintf("Expected number of calls (%d) does not match the actual number of calls (%d).", expectedCalls, numberOfCalls))
+}
+
 func (m *Mock[T]) AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool {
 	t.Helper()
 
@@ -58,16 +66,16 @@ func (m *Mock[T]) AssertExpectations(t TestingT) bool {
 
 	result := true
 	for _, call := range m.PredefinedCalls() {
-		assertCalled := m.AssertCalled(t, call.MethodName, call.Arguments...)
-		if assertCalled {
+		called := m.AssertCalled(t, call.MethodName, call.Arguments...)
+		if called {
 			if !call.calledPredefinedTimes() {
-				result = false
+				called = false
 				assert.Fail(t, "Should have called with given arguments",
 					fmt.Sprintf("Expected %q to have been called %d times with:\n%v\nbut actually it was called %d times.", call.MethodName, call.times, call.Arguments, call.totalCalls))
 			}
 		}
 
-		result = result && assertCalled
+		result = result && called
 	}
 
 	return result

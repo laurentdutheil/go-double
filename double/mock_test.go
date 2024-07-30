@@ -50,6 +50,48 @@ func TestMock(t *testing.T) {
 		})
 	})
 
+	t.Run("AssertNumberOfCallsWithArguments", func(t *testing.T) {
+		t.Run("t.Helper is called", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+
+			mock.AssertNumberOfCallsWithArguments(st, 1, "MethodWithArguments", 1, "2", 3.4)
+
+			assert.True(t, st.helperCalled)
+		})
+
+		t.Run("Return false when method is not called", func(t *testing.T) {
+			tt := new(testing.T)
+			mock := New[MockExample](tt)
+
+			result := mock.AssertNumberOfCallsWithArguments(tt, 1, "MethodWithArguments", 1, "2", 3.4)
+
+			assert.False(t, result)
+		})
+
+		t.Run("Return true when method is not called", func(t *testing.T) {
+			tt := new(testing.T)
+			mock := New[MockExample](tt)
+
+			mock.MethodWithArguments(1, "2", 3.4)
+
+			result := mock.AssertNumberOfCallsWithArguments(tt, 1, "MethodWithArguments", 1, "2", 3.4)
+
+			assert.True(t, result)
+		})
+
+		t.Run("t.Errorf is called with right message when number of calls is incorrect", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			mock.MethodWithArguments(1, "2", 3.4)
+
+			mock.AssertNumberOfCallsWithArguments(st, 2, "MethodWithArguments", 1, "2", 3.4)
+
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Expected number of calls (2) does not match the actual number of calls (1).")
+		})
+	})
+
 	t.Run("AssertCall", func(t *testing.T) {
 		t.Run("t.Helper is called", func(t *testing.T) {
 			st := &SpiedTestingT{}
