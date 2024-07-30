@@ -53,8 +53,12 @@ func (c *Call) Run(fn func(Arguments)) {
 	c.runFn = fn
 }
 
-func (c *Call) alreadyCalledPredefinedTimes() bool {
-	return c.times > 0 && c.times == c.totalCalls
+func (c *Call) canBeCalled() bool {
+	return c.times == 0 || c.totalCalls < c.times
+}
+
+func (c *Call) calledPredefinedTimes() bool {
+	return c.times == 0 || c.times > 0 && c.times == c.totalCalls
 }
 
 func (c *Call) called(arguments ...interface{}) Arguments {
@@ -82,10 +86,9 @@ type Calls []*Call
 func (c Calls) find(methodName string, arguments ...interface{}) *Call {
 	for _, predefinedCall := range c {
 		if methodName == predefinedCall.MethodName {
-			if !predefinedCall.Arguments.Matches(arguments...) || predefinedCall.alreadyCalledPredefinedTimes() {
-				continue
+			if predefinedCall.Arguments.Matches(arguments...) && predefinedCall.canBeCalled() {
+				return predefinedCall
 			}
-			return predefinedCall
 		}
 	}
 	return noCallFound

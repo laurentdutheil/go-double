@@ -1,6 +1,7 @@
 package double_test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -146,6 +147,7 @@ type ExampleType struct {
 }
 
 type SpiedTestingT struct {
+	ErrorMessages []string
 	errorfFormat  string
 	errorfArgs    []interface{}
 	helperCalled  bool
@@ -155,6 +157,7 @@ type SpiedTestingT struct {
 func (s *SpiedTestingT) Errorf(format string, args ...interface{}) {
 	s.errorfFormat = format
 	s.errorfArgs = args
+	s.ErrorMessages = append(s.ErrorMessages, fmt.Sprintf(format, args...))
 }
 
 func (s *SpiedTestingT) Helper() {

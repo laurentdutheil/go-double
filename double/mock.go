@@ -52,3 +52,23 @@ func (m *Mock[T]) AssertNotCalled(t TestingT, methodName string, arguments ...in
 	}
 	return true
 }
+
+func (m *Mock[T]) AssertExpectations(t TestingT) bool {
+	t.Helper()
+
+	result := true
+	for _, call := range m.PredefinedCalls() {
+		assertCalled := m.AssertCalled(t, call.MethodName, call.Arguments...)
+		if assertCalled {
+			if !call.calledPredefinedTimes() {
+				result = false
+				assert.Fail(t, "Should have called with given arguments",
+					fmt.Sprintf("Expected %q to have been called %d times with:\n%v\nbut actually it was called %d times.", call.MethodName, call.times, call.Arguments, call.totalCalls))
+			}
+		}
+
+		result = result && assertCalled
+	}
+
+	return result
+}

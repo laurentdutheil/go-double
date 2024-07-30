@@ -1,6 +1,7 @@
 package double_test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -217,5 +218,81 @@ func TestMock(t *testing.T) {
 			assert.Contains(t, errorMessage, "[1 3 1.2]")
 			assert.Contains(t, errorMessage, "but actually it was.")
 		})
+	})
+
+	t.Run("AssertExpectations", func(t *testing.T) {
+		t.Run("t.Helper is called", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+
+			mock.AssertExpectations(st)
+
+			assert.True(t, st.helperCalled)
+		})
+
+		t.Run("Return true when there is no expectation", func(t *testing.T) {
+			tt := new(testing.T)
+			mock := New[MockExample](tt)
+
+			result := mock.AssertExpectations(tt)
+
+			assert.True(t, result)
+		})
+
+		t.Run("Return false when one expectation is not called", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			mock.On("MethodWithReturnArguments").Return(1, fmt.Errorf("expected Error"))
+
+			result := mock.AssertExpectations(st)
+
+			assert.False(t, result)
+			assert.Equal(t, "\n%s", st.errorfFormat)
+			errorMessage := st.errorfArgs[0]
+			assert.Contains(t, errorMessage, "Error Trace:")
+			assert.Contains(t, errorMessage, "Should have called with given arguments")
+			assert.Contains(t, errorMessage, "Expected \"MethodWithReturnArguments\" to have been called with:")
+			assert.Contains(t, errorMessage, "[]")
+			assert.Contains(t, errorMessage, "but no actual calls happened")
+		})
+
+		t.Run("Return true when one expectation is called", func(t *testing.T) {
+			tt := new(testing.T)
+			mock := New[MockExample](tt)
+			mock.On("MethodWithReturnArguments").Return(1, fmt.Errorf("expected Error"))
+
+			_, _ = mock.MethodWithReturnArguments()
+			result := mock.AssertExpectations(tt)
+
+			assert.True(t, result)
+		})
+
+		t.Run("Return false when several expectations are not called", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			mock.On("MethodWithReturnArguments").Return(1, fmt.Errorf("expected Error"))
+			mock.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(1, fmt.Errorf("expected Error"))
+
+			result := mock.AssertExpectations(st)
+
+			assert.False(t, result)
+			assert.Len(t, st.ErrorMessages, 2)
+			assert.Contains(t, st.ErrorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithReturnArguments\" to have been called with:\n\t            \t[]\n\t            \tbut no actual calls happened\n")
+			assert.Contains(t, st.ErrorMessages[1], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArgumentsAndReturnArguments\" to have been called with:\n\t            \t[123 123 123]\n\t            \tbut no actual calls happened\n")
+		})
+
+		t.Run("Return false when expectation are not called enough times", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			mock.On("MethodWithArgumentsAndReturnArguments", 123, "123", 123.0).Return(1, fmt.Errorf("expected Error")).Times(2)
+
+			_, _ = mock.MethodWithArgumentsAndReturnArguments(123, "123", 123.0)
+			result := mock.AssertExpectations(st)
+
+			assert.False(t, result)
+			assert.Len(t, st.errorMessages, 1)
+			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArgumentsAndReturnArguments\" to have been called 2 times with:\n\t            \t[123 123 123]\n\t            \tbut actually it was called 1 times.\n")
+		})
+
 	})
 }
