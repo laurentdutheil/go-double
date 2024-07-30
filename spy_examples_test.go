@@ -77,7 +77,7 @@ func (s *SpyAsStub) Roll() int {
 }
 
 type SpyRealDice struct {
-	double.Spy[SpyAsStub]
+	double.Spy[SpyRealDice]
 	spied SixDie
 }
 

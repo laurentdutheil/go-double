@@ -12,7 +12,7 @@ The purpose is to be as retro-compatible as possible
 
 - [ ] TestData
 - [ ] FindClosest
-- [ ] FuntionalOptionsArguments (don't understand the behaviour and the implementation => need help)
+- [ ] FunctionalOptionsArguments (don't understand the behaviour and the implementation => need help)
 - [ ] NotBefore
 - [x] Maybe => NOT DO use Stub instead
 - [x] Unset => NOT DO use Stub instead
@@ -164,7 +164,7 @@ func (s *SpyAsStub) Roll() int {
 }
 
 type SpyRealDice struct {
-	double.Spy[SpyAsStub]
+	double.Spy[SpyRealDice]
 	spied SixDie
 }
 
