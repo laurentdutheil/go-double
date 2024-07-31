@@ -1,10 +1,5 @@
 package double
 
-import (
-	"reflect"
-	"runtime"
-)
-
 type Stub[T interface{}] struct {
 	predefinedCalls Calls
 	t               TestingT
@@ -59,12 +54,10 @@ func (s *Stub[T]) getMethodInformation() *MethodInformation {
 }
 
 func (s *Stub[T]) When(method interface{}, arguments ...interface{}) *Call {
-	valueOfMethod := reflect.ValueOf(method)
-	if valueOfMethod.Type().Kind() != reflect.Func {
+	functionName, err := GetFunctionName(method)
+	if err != nil {
 		panic("Please pass the function as an argument : stub.When(stub.Method)")
 	}
-
-	functionName := ExtractFunctionName(runtime.FuncForPC(valueOfMethod.Pointer()).Name())
 
 	call := NewCall(functionName, arguments...)
 	s.predefinedCalls = append(s.predefinedCalls, call)

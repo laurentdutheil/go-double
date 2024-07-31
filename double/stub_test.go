@@ -341,9 +341,7 @@ func TestStub(t *testing.T) {
 					expectedMessage := "Please pass the function as an argument : stub.When(stub.Method)"
 					assert.PanicsWithValue(t, expectedMessage, func() { stub.When("not a function", 1, "2", 3.0) })
 				})
-
 			})
 		})
-
 	}
 }

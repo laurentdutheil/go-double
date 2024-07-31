@@ -56,6 +56,23 @@ func TestRuntimeUtil(t *testing.T) {
 		})
 	})
 
+	t.Run("GetFunctionName", func(t *testing.T) {
+		t.Run("Get the function name", func(t *testing.T) {
+			stub := &StubExample{}
+
+			functionName, _ := GetFunctionName(stub.Method)
+
+			assert.Equal(t, "Method", functionName)
+		})
+
+		t.Run("Error if pass anything other than a function ", func(t *testing.T) {
+
+			_, err := GetFunctionName("not a function")
+
+			assert.EqualError(t, err, "\"not a function\" of type 'string' is not a function")
+		})
+	})
+
 	t.Run("GetCallingMethodInformation", func(t *testing.T) {
 		t.Run("Find method name and number of return arguments", func(t *testing.T) {
 			stubExample := &StubExample{}
