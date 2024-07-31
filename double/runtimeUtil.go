@@ -26,6 +26,10 @@ func GetCallingFunctionName(skipFrames int) string {
 	}
 	functionPath := RuntimeFuncForPCNameFunc(pc)
 
+	return ExtractFunctionName(functionPath)
+}
+
+func ExtractFunctionName(functionPath string) string {
 	// Next four lines are required to use GCCGO function naming conventions.
 	// For Ex:  github_com_docker_libkv_store_mock.WatchTree.pN39_github_com_docker_libkv_store_mock.Mock
 	// uses interface information unlike golang github.com/docker/libkv/store/mock.(*Mock).WatchTree
@@ -35,7 +39,11 @@ func GetCallingFunctionName(skipFrames int) string {
 	}
 
 	parts := strings.Split(functionPath, ".")
-	return parts[len(parts)-1]
+	functionName := parts[len(parts)-1]
+
+	parts = strings.Split(functionName, "-")
+
+	return parts[0]
 }
 
 func GetCallingMethodInformation(caller interface{}) (*MethodInformation, error) {

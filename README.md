@@ -76,16 +76,30 @@ func (m *MyStubObject) DoSomething(number int) (int, error) {
 	return args.Int(0), args.Error(1)
 }
 
-func TestStub(t *testing.T) {
-	stub := double.New[MyStubObject](t)
-	stub.On("DoSomething", 3).Return(4, nil)
-	// the next line is not called but does not fail the test
-	stub.On("DoSomething", 123).Return(-1, fmt.Errorf("stub error"))
+func TestExample_Stub(t *testing.T) {
+	t.Run("with On", func(t *testing.T) {
+		stub := double.New[MyStubObject](t)
+		stub.On("DoSomething", 3).Return(4, nil)
+		// the next line is not called but does not fail the test
+		stub.On("DoSomething", 123).Return(-1, fmt.Errorf("stub error"))
 
-	sut := SUT{stub}
-	err := sut.MethodToTest(3)
+		sut := SUT{stub}
+		err := sut.MethodToTest(3)
 
-	assert.Nil(t, err)
+		assert.Nil(t, err)
+	})
+
+	t.Run("with When to have typing", func(t *testing.T) {
+		stub := double.New[MyStubObject](t)
+		stub.When(stub.DoSomething, 3).Return(4, nil)
+		// the next line is not called but does not fail the test
+		stub.When(stub.DoSomething, 123).Return(-1, fmt.Errorf("stub error"))
+
+		sut := SUT{stub}
+		err := sut.MethodToTest(3)
+
+		assert.Nil(t, err)
+	})
 }
 ```
 

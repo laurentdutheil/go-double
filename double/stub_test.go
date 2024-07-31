@@ -308,6 +308,42 @@ func TestStub(t *testing.T) {
 					assert.True(t, ref.ran)
 				})
 			})
+
+			t.Run("When", func(t *testing.T) {
+				t.Run("Predefine method name", func(t *testing.T) {
+					tt := new(testing.T)
+					stub := test.constructor(tt)
+
+					call := stub.When(stub.Method)
+
+					assert.Equal(t, "Method", call.MethodName)
+					assert.Contains(t, stub.PredefinedCalls(), call)
+				})
+
+				t.Run("Predefine method name and arguments", func(t *testing.T) {
+					tt := new(testing.T)
+					stub := test.constructor(tt)
+
+					call := stub.When(stub.MethodWithArguments, 1, "2", 3.0)
+
+					assert.Equal(t, "MethodWithArguments", call.MethodName)
+					assert.Contains(t, stub.PredefinedCalls(), call)
+					assert.Len(t, call.Arguments, 3)
+					assert.Contains(t, call.Arguments, 1)
+					assert.Contains(t, call.Arguments, "2")
+					assert.Contains(t, call.Arguments, 3.0)
+				})
+
+				t.Run("Panic if pass anything other than a function ", func(t *testing.T) {
+					tt := new(testing.T)
+					stub := test.constructor(tt)
+
+					expectedMessage := "Please pass the function as an argument : stub.When(stub.Method)"
+					assert.PanicsWithValue(t, expectedMessage, func() { stub.When("not a function", 1, "2", 3.0) })
+				})
+
+			})
 		})
+
 	}
 }

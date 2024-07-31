@@ -197,6 +197,7 @@ type IStub interface {
 	Called(arguments ...interface{}) Arguments
 	MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments
 	PredefinedCalls() []*Call
+	When(method interface{}, arguments ...interface{}) *Call
 }
 
 type InterfaceTestStub interface {
