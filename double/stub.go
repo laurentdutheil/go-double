@@ -1,9 +1,12 @@
 package double
 
+import "github.com/stretchr/objx"
+
 type Stub[T interface{}] struct {
 	predefinedCalls Calls
 	t               TestingT
 	caller          *T
+	testData        objx.Map
 }
 
 func (s *Stub[T]) On(methodName string, arguments ...interface{}) *Call {
@@ -40,17 +43,12 @@ func (s *Stub[T]) PredefinedCalls() []*Call {
 	return s.predefinedCalls
 }
 
-func (s *Stub[T]) getMethodInformation() *MethodInformation {
-	if s.t == nil {
-		panic("Please use double.New constructor to initialize correctly.")
+func (s *Stub[T]) TestData() objx.Map {
+	if s.testData == nil {
+		s.testData = make(objx.Map)
 	}
 
-	methodInformation, err := GetCallingMethodInformation(s.caller)
-	if err != nil {
-		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
-		s.t.FailNow()
-	}
-	return methodInformation
+	return s.testData
 }
 
 func (s *Stub[T]) When(method interface{}, arguments ...interface{}) *Call {
@@ -63,4 +61,17 @@ func (s *Stub[T]) When(method interface{}, arguments ...interface{}) *Call {
 	s.predefinedCalls = append(s.predefinedCalls, call)
 
 	return call
+}
+
+func (s *Stub[T]) getMethodInformation() *MethodInformation {
+	if s.t == nil {
+		panic("Please use double.New constructor to initialize correctly.")
+	}
+
+	methodInformation, err := GetCallingMethodInformation(s.caller)
+	if err != nil {
+		s.t.Errorf(err.Error() + "\n\tUse MethodCalled instead of Called in stub implementation.")
+		s.t.FailNow()
+	}
+	return methodInformation
 }

@@ -2,6 +2,7 @@ package double_test
 
 import (
 	"fmt"
+	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -197,6 +198,7 @@ type IStub interface {
 	Called(arguments ...interface{}) Arguments
 	MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments
 	PredefinedCalls() []*Call
+	TestData() objx.Map
 	When(method interface{}, arguments ...interface{}) *Call
 }
 

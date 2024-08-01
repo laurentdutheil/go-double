@@ -309,6 +309,18 @@ func TestStub(t *testing.T) {
 				})
 			})
 
+			t.Run("TestData", func(t *testing.T) {
+				t.Run("", func(t *testing.T) {
+					tt := new(testing.T)
+					stub := test.constructor(tt)
+
+					if assert.NotNil(t, stub.TestData()) {
+						stub.TestData().Set("something", 123)
+						assert.Equal(t, 123, stub.TestData().Get("something").Data())
+					}
+				})
+			})
+
 			t.Run("When", func(t *testing.T) {
 				t.Run("Predefine method name", func(t *testing.T) {
 					tt := new(testing.T)
