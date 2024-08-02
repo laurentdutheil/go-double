@@ -17,7 +17,7 @@ The purpose is to be as retro-compatible as possible
 - [x] Maybe => NOT DO use Stub instead
 - [x] Unset => NOT DO use Stub instead
 - [ ] standardize error message
-- [ ] Mutex
+- [x] Mutex
 - [ ] Comments for documentation
 
 ## Why

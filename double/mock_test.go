@@ -3,6 +3,7 @@ package double_test
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"sync"
 	"testing"
 
 	. "github.com/laurentdutheil/go-double/double"
@@ -305,6 +306,32 @@ func TestMock(t *testing.T) {
 			assert.Len(t, st.errorMessages, 1)
 			assert.Contains(t, st.errorMessages[0], "Should have called with given arguments\n\tMessages:   \tExpected \"MethodWithArgumentsAndReturnArguments\" to have been called 2 times with:\n\t            \t[123 123 123]\n\t            \tbut actually it was called 1 times.\n")
 		})
+	})
 
+	t.Run("Race condition", func(t *testing.T) {
+		t.Run("Concurrent Return and Called", func(t *testing.T) {
+			iterations := 1000
+			tt := new(testing.T)
+			m := New[MockExample](tt)
+
+			call := m.On("Method")
+
+			wg := sync.WaitGroup{}
+			wg.Add(2)
+
+			go func() {
+				for i := 0; i < iterations; i++ {
+					call.Return(10)
+				}
+				wg.Done()
+			}()
+			go func() {
+				for i := 0; i < iterations; i++ {
+					m.Method()
+				}
+				wg.Done()
+			}()
+			wg.Wait()
+		})
 	})
 }

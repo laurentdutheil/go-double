@@ -1,6 +1,7 @@
 package double
 
 import (
+	"sync"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type Call struct {
 	waitFor         <-chan time.Time
 	waitTime        time.Duration
 	runFn           func(Arguments)
+	mutex           sync.Mutex
 }
 
 func NewCall(methodName string, arguments ...interface{}) *Call {
@@ -21,6 +23,8 @@ func NewCall(methodName string, arguments ...interface{}) *Call {
 }
 
 func (c *Call) Return(arguments ...interface{}) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.ReturnArguments = append(c.ReturnArguments, arguments...)
 	return c
 }
@@ -34,39 +38,55 @@ func (c *Call) Twice() *Call {
 }
 
 func (c *Call) Times(i int) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.times = i
 	return c
 }
 
 func (c *Call) Panic(panicMessage string) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.panicMessage = &panicMessage
 	return c
 }
 
 func (c *Call) WaitUntil(w <-chan time.Time) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.waitFor = w
 	return c
 }
 
 func (c *Call) After(duration time.Duration) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.waitTime = duration
 	return c
 }
 
 func (c *Call) Run(fn func(Arguments)) *Call {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.runFn = fn
 	return c
 }
 
 func (c *Call) canBeCalled() bool {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	return c.times == 0 || c.totalCalls < c.times
 }
 
 func (c *Call) calledPredefinedTimes() bool {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	return c.times == 0 || c.times > 0 && c.times == c.totalCalls
 }
 
 func (c *Call) called(arguments ...interface{}) Arguments {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.totalCalls++
 
 	if c.waitFor != nil {
