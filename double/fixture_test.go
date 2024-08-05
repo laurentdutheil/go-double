@@ -2,7 +2,6 @@ package double_test
 
 import (
 	"fmt"
-	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -193,15 +192,6 @@ var _ InterfaceStubExample = (*SpyExample)(nil)
 // Check if MockExample implements all methods of InterfaceStubExample
 var _ InterfaceStubExample = (*MockExample)(nil)
 
-type IStub interface {
-	On(methodName string, arguments ...interface{}) *Call
-	Called(arguments ...interface{}) Arguments
-	MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments
-	PredefinedCalls() []*Call
-	TestData() objx.Map
-	When(method interface{}, arguments ...interface{}) *Call
-}
-
 type InterfaceTestStub interface {
 	InterfaceStubExample
 	IStub
@@ -210,14 +200,6 @@ type InterfaceTestStub interface {
 type InterfaceSpyExample interface {
 	InterfaceStubExample
 	methodOnlyAddActualCall(aInt int) int
-}
-
-type ISpy interface {
-	IStub
-	AddActualCall(arguments ...interface{})
-	NumberOfCalls(methodName string) int
-	NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int
-	ActualCalls() []ActualCall
 }
 
 type InterfaceTestSpy interface {

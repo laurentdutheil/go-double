@@ -13,7 +13,7 @@ The purpose is to be as retro-compatible as possible
 - [x] TestData
 - [ ] FindClosest
 - [ ] FunctionalOptionsArguments (don't understand the behaviour and the implementation => need help)
-- [ ] NotBefore
+- [x] NotBefore => NOT DO use InOrder instead
 - [x] Maybe => NOT DO use Stub instead
 - [x] Unset => NOT DO use Stub instead
 - [ ] standardize error message

@@ -8,6 +8,24 @@ import (
 
 type Mock[T interface{}] struct {
 	Spy[T]
+	inOrder *MocksInOrder
+}
+
+func (m *Mock[T]) Called(arguments ...interface{}) Arguments {
+	methodInformation := m.getMethodInformation()
+	return m.MethodCalled(*methodInformation, arguments...)
+}
+
+func (m *Mock[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+	m.recordCallInOrder(methodInformation.Name, arguments...)
+
+	return m.Spy.MethodCalled(methodInformation, arguments...)
+}
+
+func (m *Mock[T]) AddActualCall(arguments ...interface{}) {
+	functionName := GetCallingFunctionName(2)
+	m.recordCallInOrder(functionName, arguments...)
+	m.Spy.addActualCall(functionName, arguments)
 }
 
 func (m *Mock[T]) AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool {
@@ -76,4 +94,24 @@ func (m *Mock[T]) AssertExpectations(t TestingT) bool {
 	}
 
 	return result
+}
+
+func (m *Mock[T]) InOrder(inOrder *MocksInOrder) {
+	m.inOrder = inOrder
+}
+
+func (m *Mock[T]) recordCallInOrder(methodName string, arguments ...interface{}) {
+	if m.inOrder != nil {
+		call := NewActualCall(methodName, arguments...)
+		m.inOrder.addCall(call)
+	}
+}
+
+type IMock interface {
+	ISpy
+	AssertNumberOfCalls(t TestingT, methodName string, expectedCalls int) bool
+	AssertNumberOfCallsWithArguments(t TestingT, expectedCalls int, methodName string, arguments ...interface{}) bool
+	AssertCalled(t TestingT, methodName string, arguments ...interface{}) bool
+	AssertNotCalled(t TestingT, methodName string, arguments ...interface{}) bool
+	InOrder(inOrder *MocksInOrder)
 }

@@ -1,6 +1,8 @@
 package double
 
-import "github.com/stretchr/objx"
+import (
+	"github.com/stretchr/objx"
+)
 
 type Stub[T interface{}] struct {
 	predefinedCalls Calls
@@ -74,4 +76,13 @@ func (s *Stub[T]) getMethodInformation() *MethodInformation {
 		s.t.FailNow()
 	}
 	return methodInformation
+}
+
+type IStub interface {
+	On(methodName string, arguments ...interface{}) *Call
+	Called(arguments ...interface{}) Arguments
+	MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments
+	PredefinedCalls() []*Call
+	TestData() objx.Map
+	When(method interface{}, arguments ...interface{}) *Call
 }

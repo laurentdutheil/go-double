@@ -11,15 +11,17 @@ func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
 }
 
 func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
-	call := NewActualCall(methodInformation.Name, arguments...)
-	s.actualCalls = append(s.actualCalls, call)
-
+	s.addActualCall(methodInformation.Name, arguments)
 	return s.Stub.MethodCalled(methodInformation, arguments...)
 }
 
 func (s *Spy[T]) AddActualCall(arguments ...interface{}) {
 	functionName := GetCallingFunctionName(2)
-	call := NewActualCall(functionName, arguments...)
+	s.addActualCall(functionName, arguments)
+}
+
+func (s *Spy[T]) addActualCall(methodName string, arguments []interface{}) {
+	call := NewActualCall(methodName, arguments...)
 	s.actualCalls = append(s.actualCalls, call)
 }
 
@@ -65,4 +67,12 @@ func (a ActualCall) isEqual(methodName string, arguments Arguments) bool {
 	}
 
 	return arguments.Matches(a.Arguments...)
+}
+
+type ISpy interface {
+	IStub
+	AddActualCall(arguments ...interface{})
+	NumberOfCalls(methodName string) int
+	NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int
+	ActualCalls() []ActualCall
 }

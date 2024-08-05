@@ -334,4 +334,120 @@ func TestMock(t *testing.T) {
 			wg.Wait()
 		})
 	})
+
+	t.Run("InOrder", func(t *testing.T) {
+		t.Run("AssertCalled Two calls in order", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			inOrder := InOrder(mock)
+
+			mock.Method()
+			mock.MethodWithArguments(1, "2", 3.4)
+
+			assert.True(t, inOrder.AssertCalled(st, mock, "Method"))
+			assert.True(t, inOrder.AssertCalled(st, mock, "MethodWithArguments", 1, "2", 3.4))
+			assert.True(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 0)
+		})
+
+		t.Run("AssertCalled Two calls not in order", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			inOrder := InOrder(mock)
+
+			mock.MethodWithArguments(1, "2", 3.4)
+			mock.Method()
+
+			assert.False(t, inOrder.AssertCalled(st, mock, "Method"))
+			assert.False(t, inOrder.AssertCalled(st, mock, "MethodWithArguments", 1, "2", 3.4))
+			assert.False(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 3)
+			assert.Contains(t, st.errorMessages[0], "InOrder: Method with arguments [] is not called in right order (expected 1)")
+			assert.Contains(t, st.errorMessages[1], "InOrder: MethodWithArguments with arguments [1 2 3.4] is not called in right order (expected 2)")
+			assert.Contains(t, st.errorMessages[2], "InOrder: there are still expectations to call")
+		})
+
+		t.Run("AssertCalled no call at all", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock := New[MockExample](st)
+			inOrder := InOrder(mock)
+
+			assert.False(t, inOrder.AssertCalled(st, mock, "Method"))
+			assert.False(t, inOrder.AssertCalled(st, mock, "MethodWithArguments", 1, "2", 3.4))
+			assert.False(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 3)
+			assert.Contains(t, st.errorMessages[0], "InOrder: Method with arguments [] is not called in right order (expected 1)")
+			assert.Contains(t, st.errorMessages[1], "InOrder: MethodWithArguments with arguments [1 2 3.4] is not called in right order (expected 2)")
+			assert.Contains(t, st.errorMessages[2], "InOrder: there are still expectations to call")
+		})
+
+		t.Run("AssertCalled Several calls from different mocks in order", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock1 := New[MockExample](st)
+			mock2 := New[MockExample](st)
+			inOrder := InOrder(mock1, mock2)
+
+			mock1.Method()
+			mock2.MethodWithArguments(1, "2", 3.4)
+
+			assert.True(t, inOrder.AssertCalled(st, mock1, "Method"))
+			assert.True(t, inOrder.AssertCalled(st, mock2, "MethodWithArguments", 1, "2", 3.4))
+			assert.True(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 0)
+		})
+
+		t.Run("AssertNumberOfCallsWithArguments 5 calls in order", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock1 := New[MockExample](st)
+			mock2 := New[MockExample](st)
+			inOrder := InOrder(mock1, mock2)
+
+			mock1.Method()
+			mock1.Method()
+			mock1.Method()
+			mock2.MethodWithArguments(1, "2", 3.4)
+			mock2.MethodWithArguments(1, "2", 3.4)
+
+			assert.True(t, inOrder.AssertNumberOfCallsWithArguments(st, mock1, 3, "Method"))
+			assert.True(t, inOrder.AssertNumberOfCallsWithArguments(st, mock2, 2, "MethodWithArguments", 1, "2", 3.4))
+			assert.True(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 0)
+		})
+
+		t.Run("AssertNumberOfCallsWithArguments 5 calls not in order", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock1 := New[MockExample](st)
+			mock2 := New[MockExample](st)
+			inOrder := InOrder(mock1, mock2)
+
+			mock1.Method()
+			mock2.MethodWithArguments(1, "2", 3.4)
+			mock1.Method()
+			mock2.MethodWithArguments(1, "2", 3.4)
+			mock1.Method()
+
+			assert.False(t, inOrder.AssertNumberOfCallsWithArguments(st, mock1, 3, "Method"))
+			assert.False(t, inOrder.AssertNumberOfCallsWithArguments(st, mock2, 2, "MethodWithArguments", 1, "2", 3.4))
+			assert.False(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 3)
+			assert.Contains(t, st.errorMessages[0], "InOrder: Method with arguments [] is not called in right order (expected 2)")
+			assert.Contains(t, st.errorMessages[1], "InOrder: MethodWithArguments with arguments [1 2 3.4] is not called in right order (expected 5)")
+			assert.Contains(t, st.errorMessages[2], "InOrder: there are still expectations to call")
+		})
+
+		t.Run("AssertCalled on method that use AddActualCall", func(t *testing.T) {
+			st := &SpiedTestingT{}
+			mock1 := New[MockExample](st)
+			mock2 := New[MockExample](st)
+			inOrder := InOrder(mock1, mock2)
+
+			mock1.methodOnlyAddActualCall(1)
+			mock2.methodOnlyAddActualCall(2)
+
+			assert.True(t, inOrder.AssertCalled(st, mock1, "methodOnlyAddActualCall", 1))
+			assert.True(t, inOrder.AssertCalled(st, mock2, "methodOnlyAddActualCall", 2))
+			assert.True(t, inOrder.AssertNoMoreExpectations(st))
+			assert.Len(t, st.errorMessages, 0)
+		})
+	})
 }
