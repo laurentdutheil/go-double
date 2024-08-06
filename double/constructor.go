@@ -12,16 +12,17 @@ import "testing"
 //		myMock := New[MockExample](t)
 //		...
 //	}
-func New[T interface{}, DT Double[T]](t TestingT) *T {
-	result := new(T)
-	dt := DT(result)
-	dt.Test(t)
-	return result
+func New[T any](t TestingT) *T {
+	var result interface{} = new(T)
+	tester := result.(Tester)
+	tester.Test(t)
+	tester.Caller(result)
+	return result.(*T)
 }
 
-type Double[T interface{}] interface {
+type Tester interface {
 	Test(t TestingT)
-	*T
+	Caller(c interface{})
 }
 
 // TestingT is an interface wrapper around *testing.T

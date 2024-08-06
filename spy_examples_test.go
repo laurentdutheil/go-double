@@ -68,7 +68,7 @@ func TestExample_Spy(t *testing.T) {
 }
 
 type SpyAsStub struct {
-	double.Spy[SpyAsStub]
+	double.Spy
 }
 
 func (s *SpyAsStub) Roll() int {
@@ -77,7 +77,7 @@ func (s *SpyAsStub) Roll() int {
 }
 
 type SpyRealDice struct {
-	double.Spy[SpyRealDice]
+	double.Spy
 	spied SixDie
 }
 

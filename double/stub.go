@@ -4,28 +4,26 @@ import (
 	"github.com/stretchr/objx"
 )
 
-type Stub[T interface{}] struct {
+type Stub struct {
 	predefinedCalls Calls
 	t               TestingT
-	caller          *T
+	caller          interface{}
 	testData        objx.Map
 }
 
-func (s *Stub[T]) On(methodName string, arguments ...interface{}) *Call {
+func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
 	call := NewCall(methodName, arguments...)
 	s.predefinedCalls = append(s.predefinedCalls, call)
 	return call
 }
 
-func (s *Stub[T]) Called(arguments ...interface{}) Arguments {
+func (s *Stub) Called(arguments ...interface{}) Arguments {
 	methodInformation := s.getMethodInformation()
 	return s.MethodCalled(*methodInformation, arguments...)
 }
 
-func (s *Stub[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
-	if s.t == nil {
-		panic("Please use double.New constructor to initialize correctly.")
-	}
+func (s *Stub) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+	s.checkInitialization()
 
 	foundCall := s.predefinedCalls.find(methodInformation.Name, arguments...)
 
@@ -37,15 +35,19 @@ func (s *Stub[T]) MethodCalled(methodInformation MethodInformation, arguments ..
 	return foundCall.called(arguments...)
 }
 
-func (s *Stub[T]) Test(t TestingT) {
+func (s *Stub) Test(t TestingT) {
 	s.t = t
 }
 
-func (s *Stub[T]) PredefinedCalls() []*Call {
+func (s *Stub) Caller(caller interface{}) {
+	s.caller = caller
+}
+
+func (s *Stub) PredefinedCalls() []*Call {
 	return s.predefinedCalls
 }
 
-func (s *Stub[T]) TestData() objx.Map {
+func (s *Stub) TestData() objx.Map {
 	if s.testData == nil {
 		s.testData = make(objx.Map)
 	}
@@ -53,7 +55,7 @@ func (s *Stub[T]) TestData() objx.Map {
 	return s.testData
 }
 
-func (s *Stub[T]) When(method interface{}, arguments ...interface{}) *Call {
+func (s *Stub) When(method interface{}, arguments ...interface{}) *Call {
 	functionName, err := GetFunctionName(method)
 	if err != nil {
 		panic("Please pass the function as an argument : stub.When(stub.Method)")
@@ -65,10 +67,14 @@ func (s *Stub[T]) When(method interface{}, arguments ...interface{}) *Call {
 	return call
 }
 
-func (s *Stub[T]) getMethodInformation() *MethodInformation {
-	if s.t == nil {
+func (s *Stub) checkInitialization() {
+	if s.t == nil || s.caller == nil {
 		panic("Please use double.New constructor to initialize correctly.")
 	}
+}
+
+func (s *Stub) getMethodInformation() *MethodInformation {
+	s.checkInitialization()
 
 	methodInformation, err := GetCallingMethodInformation(s.caller)
 	if err != nil {
@@ -86,3 +92,6 @@ type IStub interface {
 	TestData() objx.Map
 	When(method interface{}, arguments ...interface{}) *Call
 }
+
+// Check if Stub implements all methods of IStub
+var _ IStub = (*Stub)(nil)

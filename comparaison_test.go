@@ -130,7 +130,7 @@ func (w *WarehouseMock) Remove(articleName string, requiredNumberOfItems uint) {
 }
 
 type WarehouseDoubleMock struct {
-	double.Mock[WarehouseDoubleMock]
+	double.Mock
 }
 
 func (w *WarehouseDoubleMock) HasInventory(articleName string, requiredNumberOfItems uint) bool {

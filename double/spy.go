@@ -1,31 +1,31 @@
 package double
 
-type Spy[T interface{}] struct {
-	Stub[T]
+type Spy struct {
+	Stub
 	actualCalls []ActualCall
 }
 
-func (s *Spy[T]) Called(arguments ...interface{}) Arguments {
+func (s *Spy) Called(arguments ...interface{}) Arguments {
 	methodInformation := s.getMethodInformation()
 	return s.MethodCalled(*methodInformation, arguments...)
 }
 
-func (s *Spy[T]) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
+func (s *Spy) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
 	s.addActualCall(methodInformation.Name, arguments)
 	return s.Stub.MethodCalled(methodInformation, arguments...)
 }
 
-func (s *Spy[T]) AddActualCall(arguments ...interface{}) {
+func (s *Spy) AddActualCall(arguments ...interface{}) {
 	functionName := GetCallingFunctionName(2)
 	s.addActualCall(functionName, arguments)
 }
 
-func (s *Spy[T]) addActualCall(methodName string, arguments []interface{}) {
+func (s *Spy) addActualCall(methodName string, arguments []interface{}) {
 	call := NewActualCall(methodName, arguments...)
 	s.actualCalls = append(s.actualCalls, call)
 }
 
-func (s *Spy[T]) NumberOfCalls(methodName string) int {
+func (s *Spy) NumberOfCalls(methodName string) int {
 	count := 0
 	for _, call := range s.actualCalls {
 		if call.MethodName == methodName {
@@ -35,7 +35,7 @@ func (s *Spy[T]) NumberOfCalls(methodName string) int {
 	return count
 }
 
-func (s *Spy[T]) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
+func (s *Spy) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	count := 0
 	for _, call := range s.actualCalls {
 		if call.isEqual(methodName, arguments) {
@@ -45,7 +45,7 @@ func (s *Spy[T]) NumberOfCallsWithArguments(methodName string, arguments ...inte
 	return count
 }
 
-func (s *Spy[T]) ActualCalls() []ActualCall {
+func (s *Spy) ActualCalls() []ActualCall {
 	return s.actualCalls
 }
 
@@ -76,3 +76,6 @@ type ISpy interface {
 	NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int
 	ActualCalls() []ActualCall
 }
+
+// Check if Spy implements all methods of ISpy
+var _ ISpy = (*Spy)(nil)

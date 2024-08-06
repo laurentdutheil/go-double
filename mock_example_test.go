@@ -33,7 +33,7 @@ func (o ObjectToTest) MethodToTest(number int) error {
 In test file
 */
 type MyMockObject struct {
-	double.Mock[MyMockObject]
+	double.Mock
 }
 
 func (m *MyMockObject) GetSomething(number int) (int, error) {

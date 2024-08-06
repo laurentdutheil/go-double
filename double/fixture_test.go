@@ -9,7 +9,7 @@ import (
 )
 
 type StubExample struct {
-	Stub[StubExample]
+	Stub
 }
 
 func (s *StubExample) Method() {
@@ -49,7 +49,7 @@ func (s *StubExample) privateMethodWithMethodCalled(aInt int) error {
 }
 
 type SpyExample struct {
-	Spy[SpyExample]
+	Spy
 }
 
 func (s *SpyExample) Method() {
@@ -94,7 +94,7 @@ func (s *SpyExample) methodOnlyAddActualCall(aInt int) int {
 }
 
 type MockExample struct {
-	Mock[MockExample]
+	Mock
 }
 
 func (s *MockExample) Method() {

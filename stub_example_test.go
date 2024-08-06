@@ -34,7 +34,7 @@ func (s SUT) MethodToTest(number int) error {
 In test file
 */
 type MyStubObject struct {
-	double.Stub[MyStubObject]
+	double.Stub
 }
 
 func (m *MyStubObject) DoSomething(number int) (int, error) {

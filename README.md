@@ -68,7 +68,7 @@ func (s SUT) MethodToTest(number int) error {
 */
 
 type MyStubObject struct {
-	double.Stub[MyStubObject]
+	double.Stub
 }
 
 func (m *MyStubObject) DoSomething(number int) (int, error) {
@@ -169,7 +169,7 @@ func TestExample_Spy(t *testing.T) {
 }
 
 type SpyAsStub struct {
-	double.Spy[SpyAsStub]
+	double.Spy
 }
 
 func (s *SpyAsStub) Roll() int {
@@ -178,7 +178,7 @@ func (s *SpyAsStub) Roll() int {
 }
 
 type SpyRealDice struct {
-	double.Spy[SpyRealDice]
+	double.Spy
 	spied SixDie
 }
 
@@ -220,7 +220,7 @@ func (o ObjectToTest) MethodToTest(number int) error {
 In test file
 */
 type MyMockObject struct {
-	double.Mock[MyMockObject]
+	double.Mock
 }
 
 func (m *MyMockObject) GetSomething(number int) (int, error) {

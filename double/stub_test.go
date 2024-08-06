@@ -47,6 +47,22 @@ func TestStub(t *testing.T) {
 			})
 
 			t.Run("Called", func(t *testing.T) {
+				t.Run("Panic if don't use the New constructor method", func(t *testing.T) {
+					stub := StubExample{}
+
+					expectedMessage := "Please use double.New constructor to initialize correctly."
+					assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+				})
+
+				t.Run("Panic if don't use the New constructor method but set the testing.T", func(t *testing.T) {
+					stub := StubExample{}
+					tt := new(testing.T)
+					stub.Test(tt)
+
+					expectedMessage := "Please use double.New constructor to initialize correctly."
+					assert.PanicsWithValue(t, expectedMessage, func() { stub.Method() })
+				})
+
 				t.Run("Panic if do use the New constructor method incorrectly", func(t *testing.T) {
 					stub := test.constructor(nil)
 
