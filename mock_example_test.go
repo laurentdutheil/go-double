@@ -78,4 +78,23 @@ func TestExample_Mock(t *testing.T) {
 		assert.Equal(t, expectedError, err)
 		mock.AssertNotCalled(t, "DoSomething", double.Anything)
 	})
+
+	t.Run("Assert the order of the calls", func(t *testing.T) {
+		mock1 := double.New[MyMockObject](t)
+		mock1.On("GetSomething", double.Anything).Return(1, nil)
+		mock2 := double.New[MyMockObject](t)
+		mock2.On("GetSomething", double.Anything).Return(2, nil)
+		inOrder := double.InOrder(mock1, mock2)
+		objectToTest1 := ObjectToTest{mock1}
+		objectToTest2 := ObjectToTest{mock2}
+
+		_ = objectToTest1.MethodToTest(1)
+		_ = objectToTest2.MethodToTest(2)
+
+		inOrder.AssertCalled(t, mock1, "GetSomething", 1)
+		inOrder.AssertCalled(t, mock1, "DoSomething", 3)
+		inOrder.AssertCalled(t, mock2, "GetSomething", 2)
+		inOrder.AssertCalled(t, mock2, "DoSomething", 4)
+		inOrder.AssertNoMoreExpectations(t)
+	})
 }
