@@ -32,6 +32,16 @@ query, there is no reason that the test should break.
 **Mocks** are pre-programmed with expectations which form a specification of the calls they are expected to receive. They can throw an exception if they receive a call they don't expect and are
 checked during verification to ensure they got all the calls they were expecting.
 
+## Architecture Decision Record
+
+As I code the POC, I have to choose some design.
+I try to document them in ADR:
+
+1. [Separate Stub, Spy and Mock](./adr/01-separate-stub-spy-mock.md)
+2. [Propose a generic constructor](./adr/02-generic-constructor.md)
+3. [Use reflection to know the number of return arguments](./adr/03-use-reflection-to-know-number-of-return-argument.md)
+4. [Don't implement Maybe and Unset methods](./adr/04-dont-implement-Maybe-and-Unset.md)
+
 ## Examples
 
 ### Stub
