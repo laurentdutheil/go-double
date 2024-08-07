@@ -79,6 +79,8 @@ func (m *Mock) AssertNotCalled(t TestingT, methodName string, arguments ...inter
 	return true
 }
 
+// AssertExpectations
+// Deprecated: to respect the 'Arrange, Act, Assert' pattern, consider using the Assert* methods instead
 func (m *Mock) AssertExpectations(t TestingT) bool {
 	t.Helper()
 

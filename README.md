@@ -41,6 +41,7 @@ I try to document them in ADR:
 2. [Propose a generic constructor](./adr/02-generic-constructor.md)
 3. [Use reflection to know the number of return arguments](./adr/03-use-reflection-to-know-number-of-return-argument.md)
 4. [Don't implement Maybe and Unset methods](./adr/04-dont-implement-Maybe-and-Unset.md)
+5. [Encourage to write assertions at the end of the test](./adr/05-encourage-to-write-assertions-at-the-end-of-the-test.md)
 
 ## Examples
 
