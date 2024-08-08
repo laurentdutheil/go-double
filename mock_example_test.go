@@ -92,9 +92,9 @@ func TestExample_Mock(t *testing.T) {
 		_ = objectToTest2.MethodToTest(2)
 
 		inOrder.AssertCalled(t, mock1, "GetSomething", 1)
-		inOrder.AssertCalled(t, mock1, "DoSomething", 3)
+		inOrder.AssertCalled(t, mock1, "DoSomething", double.AnythingOfType("int"))
 		inOrder.AssertCalled(t, mock2, "GetSomething", 2)
-		inOrder.AssertCalled(t, mock2, "DoSomething", 4)
+		inOrder.AssertCalled(t, mock2, "DoSomething", double.AnythingOfType("int"))
 		inOrder.AssertNoMoreExpectations(t)
 	})
 }

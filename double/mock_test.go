@@ -444,8 +444,8 @@ func TestMock(t *testing.T) {
 			mock1.methodOnlyAddActualCall(1)
 			mock2.methodOnlyAddActualCall(2)
 
-			assert.True(t, inOrder.AssertCalled(st, mock1, "methodOnlyAddActualCall", 1))
-			assert.True(t, inOrder.AssertCalled(st, mock2, "methodOnlyAddActualCall", 2))
+			assert.True(t, inOrder.AssertCalled(st, mock1, "methodOnlyAddActualCall", Anything))
+			assert.True(t, inOrder.AssertCalled(st, mock2, "methodOnlyAddActualCall", AnythingOfType("int")))
 			assert.True(t, inOrder.AssertNoMoreExpectations(st))
 			assert.Len(t, st.errorMessages, 0)
 		})
