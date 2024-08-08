@@ -38,7 +38,7 @@ func (s *Spy) NumberOfCalls(methodName string) int {
 func (s *Spy) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	count := 0
 	for _, call := range s.actualCalls {
-		if call.isEqual(methodName, arguments) {
+		if call.matches(methodName, arguments) {
 			count++
 		}
 	}
@@ -58,11 +58,8 @@ func NewActualCall(methodName string, arguments ...interface{}) ActualCall {
 	return ActualCall{MethodName: methodName, Arguments: arguments}
 }
 
-func (a ActualCall) isEqual(methodName string, arguments Arguments) bool {
+func (a ActualCall) matches(methodName string, arguments Arguments) bool {
 	if a.MethodName != methodName {
-		return false
-	}
-	if len(a.Arguments) != len(arguments) {
 		return false
 	}
 

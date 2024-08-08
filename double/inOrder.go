@@ -28,7 +28,7 @@ func (i *MocksInOrder) AssertCalled(t TestingT, mock IMock, methodName string, a
 	call, callExists := i.popCurrentCall()
 
 	if callExists && mock.AssertCalled(t, methodName, arguments...) &&
-		call.isEqual(methodName, arguments) {
+		call.matches(methodName, arguments) {
 
 		i.expectationsCount++
 		return true
