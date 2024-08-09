@@ -33,7 +33,7 @@ func (o *Order) Fill(w Warehouse) {
 	In test file
 */
 
-func TestExample_Comparaison(t *testing.T) {
+func TestExample_Comparison(t *testing.T) {
 	t.Run("with mock.Mock", func(t *testing.T) {
 		t.Run("remove article from inventory if enough stock", func(t *testing.T) {
 			// Arrange
