@@ -40,6 +40,19 @@ func (a Arguments) String(indexOrNil ...int) string {
 	panic(fmt.Sprintf("assert: arguments: Wrong number of arguments passed to String.  Must be 0 or 1, not %d", len(indexOrNil)))
 }
 
+func (a Arguments) valuesString() string {
+	if len(a) == 0 {
+		return ""
+	}
+
+	var argVals []string
+	for argIndex, arg := range a {
+		argVals = append(argVals, fmt.Sprintf("%d: %#v", argIndex, arg))
+	}
+	return fmt.Sprintf("\n\t\t%s", strings.Join(argVals, "\n\t\t"))
+
+}
+
 func (a Arguments) Error(index int) error {
 	obj := a.Get(index)
 	var s error

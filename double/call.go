@@ -1,6 +1,7 @@
 package double
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -70,6 +71,10 @@ func (c *Call) Run(fn func(Arguments)) *Call {
 	defer c.mutex.Unlock()
 	c.runFn = fn
 	return c
+}
+
+func (c *Call) String() string {
+	return fmt.Sprintf("%s(%s)%s", c.MethodName, c.Arguments.String(), c.Arguments.valuesString())
 }
 
 func (c *Call) canBeCalled() bool {
