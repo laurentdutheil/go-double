@@ -18,13 +18,13 @@ The purpose is to be as retro-compatible as possible
 - [x] Unset => NOT DO use Stub instead
 - [ ] standardize error message
 - [x] Mutex
-- [ ] Comments for documentation
+- [x] Comments for documentation
 
 ## Why
 
 If we refer to a definition of [test doubles](https://martinfowler.com/bliki/TestDouble.html), there is an interest in distinguishing stubs, spies and mocks.
 
-**Stubs** provide canned answers to calls made during the test. For example, a stub needs to return a value in response of a query. If the code under test changes and no longer needs to make that
+**Stubs** provide prepared answers to calls made during the test. For example, a stub needs to return a value in response of a query. If the code under test changes and no longer needs to make that
 query, there is no reason that the test should break.
 
 **Spies** are stubs that also record some information based on how they were called. One form of this might be an email service that records how many messages it was sent.

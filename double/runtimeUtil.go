@@ -19,6 +19,8 @@ var RuntimeFuncForPCNameFunc = func(pc uintptr) string {
 // regex for GCCGO functions
 var gccgoRE = regexp.MustCompile(`\.pN\d+_`)
 
+// GetCallingFunctionName get the calling function's name using runtime.Caller function.
+// skipFrames is the number of stack frames to ascend, with 0 identifying the caller of Caller.
 func GetCallingFunctionName(skipFrames int) string {
 	pc, _, _, ok := RuntimeCallerFunc(skipFrames)
 	if !ok {
@@ -29,6 +31,10 @@ func GetCallingFunctionName(skipFrames int) string {
 	return extractFunctionName(functionPath)
 }
 
+// GetFunctionName get the name of the method passed in parameter.
+// Return an error if the method parameter is not reflect.Func type.
+//
+//	GetFunctionName(stub.Method)
 func GetFunctionName(method interface{}) (string, error) {
 	valueOfMethod := reflect.ValueOf(method)
 	if valueOfMethod.Type().Kind() != reflect.Func {
@@ -38,6 +44,10 @@ func GetFunctionName(method interface{}) (string, error) {
 	return extractFunctionName(runtime.FuncForPC(valueOfMethod.Pointer()).Name()), nil
 }
 
+// GetCallingMethodInformation get the calling function's information such as name and number of return arguments.
+// Use reflection to check if the calling function is part of the caller parameter.
+// Return an error if the method is not part of the caller parameter
+// or if the method is private.
 func GetCallingMethodInformation(caller interface{}) (*MethodInformation, error) {
 	functionName := GetCallingFunctionName(4)
 	typeOfCaller := reflect.TypeOf(caller)
