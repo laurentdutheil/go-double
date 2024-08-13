@@ -12,17 +12,18 @@ import "testing"
 //		myMock := New[MockExample](t)
 //		...
 //	}
-func New[T any](t TestingT) *T {
+func New[T any, TT Tester[T]](t TestingT) *T {
 	var result interface{} = new(T)
-	tester := result.(Tester)
+	tester := result.(TT)
 	tester.Test(t)
 	tester.Caller(result)
 	return result.(*T)
 }
 
-type Tester interface {
+type Tester[T any] interface {
 	Test(t TestingT)
 	Caller(c interface{})
+	*T
 }
 
 // TestingT is an interface wrapper around *testing.T
