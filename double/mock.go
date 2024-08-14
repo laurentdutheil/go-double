@@ -36,7 +36,7 @@ func (m *Mock) MethodCalled(methodInformation MethodInformation, arguments ...in
 func (m *Mock) AddActualCall(arguments ...interface{}) {
 	functionName := GetCallingFunctionName(2)
 	m.recordCallInOrder(functionName, arguments...)
-	m.Spy.addActualCall(functionName, arguments)
+	m.actualCalls.append(functionName, arguments)
 }
 
 // AssertNumberOfCalls asserts that the method was called expectedCalls times.

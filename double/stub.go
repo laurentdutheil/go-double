@@ -19,8 +19,7 @@ type Stub struct {
 //
 //	Stub.On("Method", arg1, arg2)
 func (s *Stub) On(methodName string, arguments ...interface{}) *Call {
-	call := NewCall(methodName, arguments...)
-	s.predefinedCalls = append(s.predefinedCalls, call)
+	call := s.predefinedCalls.append(methodName, arguments)
 	return call
 }
 

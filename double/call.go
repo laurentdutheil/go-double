@@ -173,11 +173,17 @@ func (c *Call) called(arguments ...interface{}) Arguments {
 // Calls collection of Call
 type Calls []*Call
 
+func (c *Calls) append(methodName string, arguments []interface{}) *Call {
+	call := NewCall(methodName, arguments...)
+	*c = append(*c, call)
+	return call
+}
+
 // find the Call that matches methodName and arguments
 // and check if the method can be called (Once, Twice, Times...)
 // Return the null object noCallFound if no Call was found
-func (c Calls) find(methodName string, arguments ...interface{}) *Call {
-	for _, predefinedCall := range c {
+func (c *Calls) find(methodName string, arguments ...interface{}) *Call {
+	for _, predefinedCall := range *c {
 		if methodName == predefinedCall.MethodName {
 			if predefinedCall.Arguments.Matches(arguments...) && predefinedCall.canBeCalled() {
 				return predefinedCall
