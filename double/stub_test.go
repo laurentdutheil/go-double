@@ -169,7 +169,7 @@ func TestStub(t *testing.T) {
 					})
 				})
 
-				t.Run("Return predefined return arguments twice. And panic on the additional call", func(t *testing.T) {
+				t.Run("Return predefined return arguments twice. And FailNow on the additional call", func(t *testing.T) {
 					st := &SpiedTestingT{}
 					stub := test.constructor(st)
 					expectedErr := fmt.Errorf("stubbed error")
@@ -186,7 +186,7 @@ func TestStub(t *testing.T) {
 					})
 				})
 
-				t.Run("Return predefined return arguments n times. And panic on the additional call", func(t *testing.T) {
+				t.Run("Return predefined return arguments n times. And FailNow on the additional call", func(t *testing.T) {
 					st := &SpiedTestingT{}
 					stub := test.constructor(st)
 					expectedErr := fmt.Errorf("stubbed error")
@@ -203,7 +203,7 @@ func TestStub(t *testing.T) {
 					})
 				})
 
-				t.Run("Return different predefined return arguments. And panic on the additional call", func(t *testing.T) {
+				t.Run("Return different predefined return arguments. And FailNow on the additional call", func(t *testing.T) {
 					st := &SpiedTestingT{}
 					stub := test.constructor(st)
 					expectedErr := fmt.Errorf("stubbed error")
@@ -338,6 +338,13 @@ func TestStub(t *testing.T) {
 			})
 
 			t.Run("When", func(t *testing.T) {
+				t.Run("Panic if don't use the New constructor method", func(t *testing.T) {
+					stub := StubExample{}
+
+					expectedMessage := "Please use double.New constructor to initialize correctly."
+					assert.PanicsWithValue(t, expectedMessage, func() { stub.When(stub.Method) })
+				})
+
 				t.Run("Predefine method name", func(t *testing.T) {
 					tt := new(testing.T)
 					stub := test.constructor(tt)
@@ -362,12 +369,15 @@ func TestStub(t *testing.T) {
 					assert.Contains(t, call.Arguments, 3.0)
 				})
 
-				t.Run("Panic if pass anything other than a function ", func(t *testing.T) {
-					tt := new(testing.T)
-					stub := test.constructor(tt)
+				t.Run("FailNow if pass anything other than a function", func(t *testing.T) {
+					st := &SpiedTestingT{}
+					stub := test.constructor(st)
 
+					st.AssertFailNowWasCalled(t, func() {
+						stub.When("not a function", 1, "2", 3.0)
+					})
 					expectedMessage := "Please pass the function as an argument : stub.When(stub.Method)"
-					assert.PanicsWithValue(t, expectedMessage, func() { stub.When("not a function", 1, "2", 3.0) })
+					assert.Equal(t, expectedMessage, st.errorMessages[0])
 				})
 			})
 		})

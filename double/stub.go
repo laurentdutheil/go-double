@@ -82,9 +82,12 @@ func (s *Stub) TestData() objx.Map {
 //
 //	Stub.When(Stub.Method, arg1, arg2)
 func (s *Stub) When(method interface{}, arguments ...interface{}) *Call {
+	s.checkInitialization()
+
 	functionName, err := GetFunctionName(method)
 	if err != nil {
-		panic("Please pass the function as an argument : stub.When(stub.Method)")
+		s.t.Errorf("Please pass the function as an argument : stub.When(stub.Method)")
+		s.t.FailNow()
 	}
 
 	call := NewCall(functionName, arguments...)
