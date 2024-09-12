@@ -132,6 +132,10 @@ func (c *Call) String() string {
 	return fmt.Sprintf("%s(%s)%s", c.MethodName, c.Arguments.String(), c.Arguments.valuesString())
 }
 
+func (c *Call) matches(methodName string, arguments ...interface{}) bool {
+	return c.MethodName == methodName && c.Arguments.Matches(arguments...)
+}
+
 // canBeCalled return if the method call be called again
 func (c *Call) canBeCalled() bool {
 	c.mutex.Lock()
@@ -184,10 +188,9 @@ func (c *Calls) append(methodName string, arguments []interface{}) *Call {
 // Return the null object noCallFound if no Call was found
 func (c *Calls) find(methodName string, arguments ...interface{}) *Call {
 	for _, predefinedCall := range *c {
-		if methodName == predefinedCall.MethodName {
-			if predefinedCall.Arguments.Matches(arguments...) && predefinedCall.canBeCalled() {
-				return predefinedCall
-			}
+		if predefinedCall.matches(methodName, arguments...) &&
+			predefinedCall.canBeCalled() {
+			return predefinedCall
 		}
 	}
 	return noCallFound

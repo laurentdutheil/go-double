@@ -1,7 +1,6 @@
 package double
 
 import (
-	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
@@ -91,41 +90,21 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 		return false
 	}
 
+	result := true
 	for i, actual := range arguments {
 		expected := a[i]
 		switch expectedType := expected.(type) {
 		case AnythingOfTypeArgument:
-			if reflect.TypeOf(actual).Name() != string(expectedType) && reflect.TypeOf(actual).String() != string(expectedType) {
-				return false
-			}
+			result = result && expectedType.matches(actual)
 		case *IsTypeArgument:
-			actualT := reflect.TypeOf(actual)
-			if actualT != expectedType.t {
-				return false
-			}
+			result = result && expectedType.matches(actual)
 		case ArgumentMatcher:
-			matcher := expected.(ArgumentMatcher)
-			var matches bool
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-					}
-				}()
-				matches = matcher.Matches(actual)
-			}()
-			if !matches {
-				return false
-			}
+			result = result && expectedType.matches(actual)
 		default:
-			if assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) {
-				continue
-			}
-			if !assert.ObjectsAreEqual(expected, actual) {
-				return false
-			}
+			result = result && (assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) || assert.ObjectsAreEqual(expected, actual))
 		}
 	}
-	return true
+	return result
 }
 
 const Anything = "double.Anything"
@@ -136,6 +115,10 @@ func AnythingOfType(t string) AnythingOfTypeArgument {
 	return AnythingOfTypeArgument(t)
 }
 
+func (t AnythingOfTypeArgument) matches(actual interface{}) bool {
+	return reflect.TypeOf(actual).Name() == string(t) || reflect.TypeOf(actual).String() == string(t)
+}
+
 type IsTypeArgument struct {
 	t reflect.Type
 }
@@ -144,11 +127,15 @@ func IsType(t interface{}) *IsTypeArgument {
 	return &IsTypeArgument{t: reflect.TypeOf(t)}
 }
 
+func (t IsTypeArgument) matches(actual interface{}) bool {
+	return reflect.TypeOf(actual) == t.t
+}
+
 type ArgumentMatcher struct {
 	fn reflect.Value
 }
 
-func (f ArgumentMatcher) Matches(argument interface{}) bool {
+func (f ArgumentMatcher) matches(argument interface{}) bool {
 	expectType := f.fn.Type().In(0)
 
 	argType := reflect.TypeOf(argument)
@@ -160,7 +147,7 @@ func (f ArgumentMatcher) Matches(argument interface{}) bool {
 	}
 
 	if argType == nil && !isNilSupported(expectType) {
-		panic(errors.New("attempting to call matcher with nil for non-nil expected type"))
+		return false
 	}
 	if argType == nil || argType.AssignableTo(expectType) {
 		result := f.fn.Call([]reflect.Value{arg})
