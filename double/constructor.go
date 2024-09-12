@@ -12,7 +12,7 @@ import "testing"
 //		myMock := New[MockExample](t)
 //		...
 //	}
-func New[T any, TT Tester[T]](t TestingT) *T {
+func New[T any, TT tester[T]](t TestingT) *T {
 	var result interface{} = new(T)
 	tester := result.(TT)
 	tester.Test(t)
@@ -20,7 +20,7 @@ func New[T any, TT Tester[T]](t TestingT) *T {
 	return result.(*T)
 }
 
-type Tester[T any] interface {
+type tester[T any] interface {
 	Test(t TestingT)
 	Caller(c interface{})
 	*T

@@ -17,6 +17,11 @@ func (a Arguments) Get(index int) interface{} {
 	return a[index]
 }
 
+// String gets the argument at the specified index. Panics if there is no argument, or
+// if the argument is of the wrong type.
+//
+// If no index is provided, String() returns a complete string representation
+// of the arguments.
 func (a Arguments) String(indexOrNil ...int) string {
 	if len(indexOrNil) == 0 {
 		// normal String() method - return a string representation of the args
@@ -52,6 +57,8 @@ func (a Arguments) valuesString() string {
 
 }
 
+// Error gets the argument at the specified index. Panics if there is no argument, or
+// if the argument is of the wrong type.
 func (a Arguments) Error(index int) error {
 	obj := a.Get(index)
 	var s error
@@ -65,6 +72,8 @@ func (a Arguments) Error(index int) error {
 	return s
 }
 
+// Int gets the argument at the specified index. Panics if there is no argument, or
+// if the argument is of the wrong type.
 func (a Arguments) Int(index int) int {
 	var s int
 	var ok bool
