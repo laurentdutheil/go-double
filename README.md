@@ -67,12 +67,11 @@ type SUT struct {
 }
 
 func (s SUT) MethodToTest(number int) error {
-	n, err := s.dependency.DoSomething(number)
+	_, err := s.dependency.DoSomething(number)
 	if err != nil {
 		return err
 	}
 	// do something with the result of dependency
-	n = n % 100
 
 	return nil
 }
