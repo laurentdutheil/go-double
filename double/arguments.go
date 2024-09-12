@@ -3,7 +3,6 @@ package double
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"reflect"
 	"strings"
 )
 
@@ -102,90 +101,12 @@ func (a Arguments) Matches(arguments ...interface{}) bool {
 	result := true
 	for i, actual := range arguments {
 		expected := a[i]
-		switch expectedType := expected.(type) {
-		case AnythingOfTypeArgument:
+		expectedType, ok := expected.(ArgumentMatcher)
+		if ok {
 			result = result && expectedType.matches(actual)
-		case *IsTypeArgument:
-			result = result && expectedType.matches(actual)
-		case ArgumentMatcher:
-			result = result && expectedType.matches(actual)
-		default:
+		} else {
 			result = result && (assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) || assert.ObjectsAreEqual(expected, actual))
 		}
 	}
 	return result
-}
-
-const Anything = "double.Anything"
-
-type AnythingOfTypeArgument string
-
-func AnythingOfType(t string) AnythingOfTypeArgument {
-	return AnythingOfTypeArgument(t)
-}
-
-func (t AnythingOfTypeArgument) matches(actual interface{}) bool {
-	return reflect.TypeOf(actual).Name() == string(t) || reflect.TypeOf(actual).String() == string(t)
-}
-
-type IsTypeArgument struct {
-	t reflect.Type
-}
-
-func IsType(t interface{}) *IsTypeArgument {
-	return &IsTypeArgument{t: reflect.TypeOf(t)}
-}
-
-func (t IsTypeArgument) matches(actual interface{}) bool {
-	return reflect.TypeOf(actual) == t.t
-}
-
-type ArgumentMatcher struct {
-	fn reflect.Value
-}
-
-func (f ArgumentMatcher) matches(argument interface{}) bool {
-	expectType := f.fn.Type().In(0)
-
-	argType := reflect.TypeOf(argument)
-	var arg reflect.Value
-	if argType == nil {
-		arg = reflect.New(expectType).Elem()
-	} else {
-		arg = reflect.ValueOf(argument)
-	}
-
-	if argType == nil && !isNilSupported(expectType) {
-		return false
-	}
-	if argType == nil || argType.AssignableTo(expectType) {
-		result := f.fn.Call([]reflect.Value{arg})
-		return result[0].Bool()
-	}
-	return false
-}
-
-func isNilSupported(expectType reflect.Type) bool {
-	switch expectType.Kind() {
-	case reflect.Interface, reflect.Chan, reflect.Func, reflect.Map, reflect.Slice, reflect.Ptr:
-		return true
-	default:
-		return false
-	}
-}
-
-func MatchedBy(fn interface{}) ArgumentMatcher {
-	fnType := reflect.TypeOf(fn)
-
-	if fnType.Kind() != reflect.Func {
-		panic(fmt.Sprintf("assert: arguments: %s is not a func", fn))
-	}
-	if fnType.NumIn() != 1 {
-		panic(fmt.Sprintf("assert: arguments: %s does not take exactly one argument", fn))
-	}
-	if fnType.NumOut() != 1 || fnType.Out(0).Kind() != reflect.Bool {
-		panic(fmt.Sprintf("assert: arguments: %s does not return a bool", fn))
-	}
-
-	return ArgumentMatcher{fn: reflect.ValueOf(fn)}
 }
