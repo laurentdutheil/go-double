@@ -1,5 +1,7 @@
 # go-double
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/laurentdutheil/go-double)](https://goreportcard.com/report/github.com/laurentdutheil/go-double) [![PkgGoDev](https://pkg.go.dev/badge/github.com/laurentdutheil/go-double)](https://pkg.go.dev/github.com/laurentdutheil/go-double)
+
 Library that distincts stubs, spies and mocks that depends on [Testify](https://github.com/stretchr/testify)
 
 ## Purpose
