@@ -132,8 +132,8 @@ func (c *Call) String() string {
 	return fmt.Sprintf("%s(%s)%s", c.MethodName, c.Arguments.String(), c.Arguments.valuesString())
 }
 
-func (c *Call) matches(methodName string, arguments ...interface{}) bool {
-	return c.MethodName == methodName && c.Arguments.Matches(arguments...)
+func (c *Call) matches(t TestingT, methodName string, arguments ...interface{}) bool {
+	return c.MethodName == methodName && c.Arguments.Matches(t, arguments...)
 }
 
 // canBeCalled return if the method call be called again
@@ -186,9 +186,9 @@ func (c *Calls) append(methodName string, arguments []interface{}) *Call {
 // find the Call that matches methodName and arguments
 // and check if the method can be called (Once, Twice, Times...)
 // Return the null object noCallFound if no Call was found
-func (c *Calls) find(methodName string, arguments ...interface{}) *Call {
+func (c *Calls) find(t TestingT, methodName string, arguments ...interface{}) *Call {
 	for _, predefinedCall := range *c {
-		if predefinedCall.matches(methodName, arguments...) &&
+		if predefinedCall.matches(t, methodName, arguments...) &&
 			predefinedCall.canBeCalled() {
 			return predefinedCall
 		}

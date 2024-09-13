@@ -32,7 +32,7 @@ func (i *InOrderValidator) AssertCalled(t TestingT, mock IMock, methodName strin
 	call, callExists := i.popCurrentCall()
 
 	if callExists && mock.AssertCalled(t, methodName, arguments...) &&
-		call.matches(methodName, arguments) {
+		call.matches(t, methodName, arguments) {
 
 		i.expectationsCount++
 		return true

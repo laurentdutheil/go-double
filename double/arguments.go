@@ -92,21 +92,38 @@ func (a Arguments) Bool(index int) bool {
 	}
 	return s
 }
+func (a Arguments) Matches(t TestingT, arguments ...interface{}) bool {
+	t.Helper()
 
-func (a Arguments) Matches(arguments ...interface{}) bool {
 	if len(a) != len(arguments) {
+		t.Logf("Arguments have not the same size: len(expected) == %d ; len(actual) == %d", len(a), len(arguments))
 		return false
 	}
 
 	result := true
 	for i, actual := range arguments {
+		actualFmt := fmt.Sprintf("(%[1]T=%[1]v)", actual)
 		expected := a[i]
+		expectedFmt := fmt.Sprintf("(%[1]T=%[1]v)", expected)
 		expectedType, ok := expected.(ArgumentMatcher)
 		if ok {
-			result = result && expectedType.matches(actual)
+			objectsMatch := expectedType.matches(actual)
+			if objectsMatch {
+				t.Logf("\t%d: PASS: %s matches %s", i, actualFmt, expectedFmt)
+			} else {
+				t.Logf("\t%d: FAIL: %s doesn't match %s", i, actualFmt, expectedFmt)
+			}
+			result = result && objectsMatch
 		} else {
-			result = result && (assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) || assert.ObjectsAreEqual(expected, actual))
+			objectAreEqual := assert.ObjectsAreEqual(expected, Anything) || assert.ObjectsAreEqual(actual, Anything) || assert.ObjectsAreEqual(expected, actual)
+			if objectAreEqual {
+				t.Logf("\t%d: PASS: %s == %s", i, actualFmt, expectedFmt)
+			} else {
+				t.Logf("\t%d: FAIL: %s != %s", i, actualFmt, expectedFmt)
+			}
+			result = result && objectAreEqual
 		}
 	}
+
 	return result
 }

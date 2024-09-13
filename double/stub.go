@@ -39,7 +39,7 @@ func (s *Stub) Called(arguments ...interface{}) Arguments {
 func (s *Stub) MethodCalled(methodInformation MethodInformation, arguments ...interface{}) Arguments {
 	s.checkInitialization()
 
-	foundCall := s.predefinedCalls.find(methodInformation.Name, arguments...)
+	foundCall := s.predefinedCalls.find(s.t, methodInformation.Name, arguments...)
 
 	if foundCall == noCallFound && methodInformation.NumOut > 0 {
 		s.t.Errorf("I don't know what to return because the method call was unexpected.\n\tDo Stub.On(\"%s\").Return(...) first", methodInformation.Name)

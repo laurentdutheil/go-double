@@ -14,9 +14,9 @@ import "testing"
 //	}
 func New[T any, TT tester[T]](t TestingT) *T {
 	var result interface{} = new(T)
-	tester := result.(TT)
-	tester.Test(t)
-	tester.Caller(result)
+	tt := result.(TT)
+	tt.Test(t)
+	tt.Caller(result)
 	return result.(*T)
 }
 
@@ -28,6 +28,7 @@ type tester[T any] interface {
 
 // TestingT is an interface wrapper around *testing.T
 type TestingT interface {
+	Logf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
 	Helper()
 	FailNow()

@@ -145,84 +145,164 @@ func TestArguments(t *testing.T) {
 	})
 
 	t.Run("Matches", func(t *testing.T) {
-		t.Run("false if length are different", func(t *testing.T) {
+		t.Run("t.Helper is called", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{123}
-			assert.False(t, args.Matches(123, true))
+			args.Matches(st, 123)
+
+			assert.True(t, st.helperCalled)
+		})
+
+		t.Run("false if length are different", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
+			var args = Arguments{123}
+			assert.False(t, args.Matches(st, 123, true))
+			assert.Contains(t, st.logMessages, "Arguments have not the same size: len(expected) == 1 ; len(actual) == 2")
 
 			args = Arguments{123, true, 1.0}
-			assert.False(t, args.Matches(123, true))
+			assert.False(t, args.Matches(st, 123, true))
+			assert.Contains(t, st.logMessages, "Arguments have not the same size: len(expected) == 3 ; len(actual) == 2")
 		})
 
 		t.Run("compare primitives", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{123, true, 1.0}
 
-			assert.True(t, args.Matches(123, true, 1.0))
-			assert.False(t, args.Matches(456, true, 1.0))
-			assert.False(t, args.Matches(123, false, 1.0))
-			assert.False(t, args.Matches(123, true, 1.2))
+			assert.True(t, args.Matches(st, 123, true, 1.0))
+			assert.Contains(t, st.logMessages, "\t0: PASS: (int=123) == (int=123)")
+			assert.Contains(t, st.logMessages, "\t1: PASS: (bool=true) == (bool=true)")
+			assert.Contains(t, st.logMessages, "\t2: PASS: (float64=1) == (float64=1)")
+
+			assert.False(t, args.Matches(st, 456, true, 1.0))
+			assert.Contains(t, st.logMessages, "\t0: FAIL: (int=456) != (int=123)")
+
+			assert.False(t, args.Matches(st, 123, false, 1.0))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (bool=false) != (bool=true)")
+
+			assert.False(t, args.Matches(st, 123, true, 1.2))
+			assert.Contains(t, st.logMessages, "\t2: FAIL: (float64=1.2) != (float64=1)")
+
 		})
 
 		t.Run("compare string", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{"String"}
 
-			assert.True(t, args.Matches("String"))
-			assert.False(t, args.Matches(""))
+			assert.True(t, args.Matches(st, "String"))
+			assert.Contains(t, st.logMessages, "\t0: PASS: (string=String) == (string=String)")
+
+			assert.False(t, args.Matches(st, ""))
+			assert.Contains(t, st.logMessages, "\t0: FAIL: (string=) != (string=String)")
 		})
 
 		t.Run("compare list", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{[]int{1, 2, 3}}
 
-			assert.True(t, args.Matches([]int{1, 2, 3}))
-			assert.False(t, args.Matches([]int{4, 2, 3}))
+			assert.True(t, args.Matches(st, []int{1, 2, 3}))
+			assert.Contains(t, st.logMessages, "\t0: PASS: ([]int=[1 2 3]) == ([]int=[1 2 3])")
+
+			assert.False(t, args.Matches(st, []int{4, 2, 3}))
+			assert.Contains(t, st.logMessages, "\t0: FAIL: ([]int=[4 2 3]) != ([]int=[1 2 3])")
 		})
 
 		t.Run("compare with Anything argument", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{1, Anything, 3}
 
-			assert.True(t, args.Matches(1, 2, 3))
-			assert.True(t, args.Matches(1, "String", 3))
-			assert.True(t, args.Matches(1, 4.5, 3))
-			assert.True(t, args.Matches(1, 2, Anything))
+			assert.True(t, args.Matches(st, 1, 2, 3))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (int=2) == (string=double.Anything)")
+
+			assert.True(t, args.Matches(st, 1, "String", 3))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (string=String) == (string=double.Anything)")
+
+			assert.True(t, args.Matches(st, 1, 4.5, 3))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (float64=4.5) == (string=double.Anything)")
+
+			assert.True(t, args.Matches(st, 1, 2, Anything))
+			assert.Contains(t, st.logMessages, "\t2: PASS: (string=double.Anything) == (int=3)")
 		})
 
 		t.Run("compare with AnythingOfType argument", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments{AnythingOfType("int"), AnythingOfType("string"), AnythingOfType("*double_test.ExampleType")}
 
-			assert.True(t, args.Matches(1, "String", &ExampleType{}))
-			assert.True(t, args.Matches(2, "any string", &ExampleType{}))
-			assert.False(t, args.Matches("any string", "any string", &ExampleType{}))
-			assert.False(t, args.Matches(2, 2, &ExampleType{}))
-			assert.False(t, args.Matches(2, "any string", ExampleType{}))
+			assert.True(t, args.Matches(st, 1, "String", &ExampleType{true}))
+			assert.Contains(t, st.logMessages, "\t0: PASS: (int=1) matches (double.anythingOfTypeArgument=int)")
+			assert.Contains(t, st.logMessages, "\t1: PASS: (string=String) matches (double.anythingOfTypeArgument=string)")
+			assert.Contains(t, st.logMessages, "\t2: PASS: (*double_test.ExampleType=&{true}) matches (double.anythingOfTypeArgument=*double_test.ExampleType)")
+
+			assert.True(t, args.Matches(st, 2, "any string", &ExampleType{false}))
+			assert.Contains(t, st.logMessages, "\t0: PASS: (int=2) matches (double.anythingOfTypeArgument=int)")
+			assert.Contains(t, st.logMessages, "\t1: PASS: (string=any string) matches (double.anythingOfTypeArgument=string)")
+			assert.Contains(t, st.logMessages, "\t2: PASS: (*double_test.ExampleType=&{false}) matches (double.anythingOfTypeArgument=*double_test.ExampleType)")
+
+			assert.False(t, args.Matches(st, "any string", "any string", &ExampleType{false}))
+			assert.Contains(t, st.logMessages, "\t0: FAIL: (string=any string) doesn't match (double.anythingOfTypeArgument=int)")
+
+			assert.False(t, args.Matches(st, 2, 2, &ExampleType{false}))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (int=2) doesn't match (double.anythingOfTypeArgument=string)")
+
+			assert.False(t, args.Matches(st, 2, "any string", ExampleType{false}))
+			assert.Contains(t, st.logMessages, "\t2: FAIL: (double_test.ExampleType={false}) doesn't match (double.anythingOfTypeArgument=*double_test.ExampleType)")
 		})
 
 		t.Run("compare IsType argument", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			var args = Arguments([]interface{}{"string", IsType(0), true})
 
-			assert.True(t, args.Matches("string", 123, true))
-			assert.False(t, args.Matches("string", "string", true))
+			assert.True(t, args.Matches(st, "string", 123, true))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (int=123) matches (*double.isTypeArgument=int)")
+
+			assert.False(t, args.Matches(st, "string", "string", true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (string=string) doesn't match (*double.isTypeArgument=int)")
 		})
 
 		t.Run("compare Matcher argument", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			matchFn := func(a int) bool {
 				return a == 123
 			}
 			var args = Arguments{"string", MatchedBy(matchFn), true}
 
-			assert.True(t, args.Matches("string", 123, true))
-			assert.False(t, args.Matches("string", 124, true))
-			assert.False(t, args.Matches("string", false, true))
-			assert.False(t, args.Matches("string", nil, true))
+			assert.True(t, args.Matches(st, "string", 123, true))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (int=123) matches (double.functionMatcherArgument=func(int) bool)")
+
+			assert.False(t, args.Matches(st, "string", 124, true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (int=124) doesn't match (double.functionMatcherArgument=func(int) bool)")
+
+			assert.False(t, args.Matches(st, "string", false, true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (bool=false) doesn't match (double.functionMatcherArgument=func(int) bool)")
+
+			assert.False(t, args.Matches(st, "string", nil, true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (<nil>=<nil>) doesn't match (double.functionMatcherArgument=func(int) bool)")
 		})
 
 		t.Run("compare Matcher argument with type nillable", func(t *testing.T) {
+			st := &SpiedTestingT{}
+
 			matchFn := func(a []int) bool {
 				return a == nil
 			}
 			var args = Arguments{"string", MatchedBy(matchFn), true}
 
-			assert.True(t, args.Matches("string", nil, true))
-			assert.False(t, args.Matches("string", 123, true))
-			assert.False(t, args.Matches("string", false, true))
+			assert.True(t, args.Matches(st, "string", nil, true))
+			assert.Contains(t, st.logMessages, "\t1: PASS: (<nil>=<nil>) matches (double.functionMatcherArgument=func([]int) bool)")
+
+			assert.False(t, args.Matches(st, "string", 123, true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (int=123) doesn't match (double.functionMatcherArgument=func([]int) bool)")
+
+			assert.False(t, args.Matches(st, "string", false, true))
+			assert.Contains(t, st.logMessages, "\t1: FAIL: (bool=false) doesn't match (double.functionMatcherArgument=func([]int) bool)")
 		})
 	})
 

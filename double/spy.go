@@ -43,7 +43,7 @@ func (s *Spy) NumberOfCalls(methodName string) int {
 // NumberOfCallsWithArguments return the number of calls of the method with the specified arguments
 func (s *Spy) NumberOfCallsWithArguments(methodName string, arguments ...interface{}) int {
 	predicate := func(call ActualCall) bool {
-		return call.matches(methodName, arguments)
+		return call.matches(s.t, methodName, arguments)
 	}
 	return s.actualCalls.count(predicate)
 }
@@ -64,12 +64,12 @@ func NewActualCall(methodName string, arguments ...interface{}) ActualCall {
 	return ActualCall{MethodName: methodName, Arguments: arguments}
 }
 
-func (a ActualCall) matches(methodName string, arguments Arguments) bool {
+func (a ActualCall) matches(t TestingT, methodName string, arguments Arguments) bool {
 	if a.MethodName != methodName {
 		return false
 	}
 
-	return arguments.Matches(a.Arguments...)
+	return arguments.Matches(t, a.Arguments...)
 }
 
 type ActualCalls []ActualCall

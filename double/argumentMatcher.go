@@ -45,12 +45,20 @@ type isTypeArgument struct {
 	t reflect.Type
 }
 
+func (t isTypeArgument) String() string {
+	return t.t.Name()
+}
+
 func (t isTypeArgument) matches(actual interface{}) bool {
 	return reflect.TypeOf(actual) == t.t
 }
 
 type functionMatcherArgument struct {
 	fn reflect.Value
+}
+
+func (f functionMatcherArgument) String() string {
+	return fmt.Sprintf("func(%s) bool", f.fn.Type().In(0).String())
 }
 
 func (f functionMatcherArgument) matches(argument interface{}) bool {
